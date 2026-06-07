@@ -1,0 +1,60 @@
+# Local development stack (Doc 08 §5). `docker compose up` brings up the full backing services.
+name: interview-copilot
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: localdev
+      POSTGRES_DB: interviewcopilot
+    ports: ["5432:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d interviewcopilot"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+
+  # S3 + SQS emulation for local dev (Doc 08).
+  localstack:
+    image: localstack/localstack:3
+    environment:
+      SERVICES: s3,sqs
+    ports: ["4566:4566"]
+
+  # OpenTelemetry collector → local Jaeger/Prometheus during dev (Doc 11).
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    command: ["--config=/etc/otel-config.yaml"]
+    volumes: ["./otel-config.yaml:/etc/otel-config.yaml:ro"]
+    ports: ["4317:4317"]
+
+  api:
+    build:
+      context: ..
+      dockerfile: infra/backend.Dockerfile
+    environment:
+      ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=interviewcopilot;Username=app;Password=localdev"
+      OpenTelemetry__Endpoint: "http://otel-collector:4317"
+      ASPNETCORE_URLS: "http://+:8080"
+    ports: ["8080:8080"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+
+  web:
+    build:
+      context: ..
+      dockerfile: infra/frontend.Dockerfile
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: "http://localhost:8080/api/v1"
+    ports: ["3000:3000"]
+    depends_on: [api]
+
+volumes:
+  pgdata:

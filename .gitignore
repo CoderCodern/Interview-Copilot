@@ -1,0 +1,39 @@
+# ---- .NET ----
+bin/
+obj/
+*.user
+[Dd]ebug/
+[Rr]elease/
+.vs/
+TestResults/
+coverage*.xml
+
+# ---- Node / Next.js ----
+node_modules/
+.next/
+out/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+/frontend/types/api.d.ts
+
+# ---- Env / secrets (never commit) ----
+.env
+.env.local
+.env.*.local
+*.pem
+appsettings.*.local.json
+
+# ---- Terraform ----
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.example.tfvars
+crash.log
+
+# ---- OS / editors ----
+.DS_Store
+Thumbs.db
+.idea/
+*.swp

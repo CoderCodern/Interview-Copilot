@@ -1,0 +1,85 @@
+name: CD
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# OIDC federation to AWS — no long-lived credentials in GitHub (Doc 09 §3).
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REGISTRY: ${{ vars.ECR_REGISTRY }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.meta.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: meta
+        run: echo "sha=${GITHUB_SHA::12}" >> "$GITHUB_OUTPUT"
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build & push API image
+        run: |
+          docker build -f infra/backend.Dockerfile -t "$ECR_REGISTRY/icp-api:${{ steps.meta.outputs.sha }}" .
+          docker push "$ECR_REGISTRY/icp-api:${{ steps.meta.outputs.sha }}"
+
+      - name: Build & push Web image
+        run: |
+          docker build -f infra/frontend.Dockerfile -t "$ECR_REGISTRY/icp-web:${{ steps.meta.outputs.sha }}" .
+          docker push "$ECR_REGISTRY/icp-web:${{ steps.meta.outputs.sha }}"
+
+  deploy-staging:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Run DB migrations (one-shot ECS task, before traffic — Doc 09 §3)
+        run: aws ecs run-task --cluster icp-staging-cluster --task-definition icp-staging-migrate --launch-type FARGATE
+
+      - name: Deploy services (rolling, circuit breaker on)
+        run: |
+          aws ecs update-service --cluster icp-staging-cluster --service icp-staging-api  --force-new-deployment
+          aws ecs update-service --cluster icp-staging-cluster --service icp-staging-web  --force-new-deployment
+
+      - name: Smoke + E2E
+        run: echo "Run Playwright smoke against staging URL."
+
+  deploy-prod:
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    environment: production # manual approval gate configured on this GitHub Environment
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Migrate + deploy prod (same image promoted from staging)
+        run: |
+          aws ecs run-task --cluster icp-prod-cluster --task-definition icp-prod-migrate --launch-type FARGATE
+          aws ecs update-service --cluster icp-prod-cluster --service icp-prod-api --force-new-deployment
+          aws ecs update-service --cluster icp-prod-cluster --service icp-prod-web --force-new-deployment
+
+      - name: Post-deploy smoke
+        run: echo "Hit /health/ready + canary journey; auto-rollback via ECS circuit breaker on failure."

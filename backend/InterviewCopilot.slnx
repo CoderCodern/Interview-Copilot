@@ -1,0 +1,13 @@
+<Solution>
+  <!-- .NET 10 XML solution format (.slnx). Open with `dotnet sln`/VS 2022 17.10+ -->
+  <Folder Name="/src/">
+    <Project Path="src/InterviewCopilot.Domain/InterviewCopilot.Domain.csproj" />
+    <Project Path="src/InterviewCopilot.Application/InterviewCopilot.Application.csproj" />
+    <Project Path="src/InterviewCopilot.Infrastructure/InterviewCopilot.Infrastructure.csproj" />
+    <Project Path="src/InterviewCopilot.Api/InterviewCopilot.Api.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/InterviewCopilot.Domain.UnitTests/InterviewCopilot.Domain.UnitTests.csproj" />
+    <Project Path="tests/InterviewCopilot.Architecture.Tests/InterviewCopilot.Architecture.Tests.csproj" />
+  </Folder>
+</Solution>
