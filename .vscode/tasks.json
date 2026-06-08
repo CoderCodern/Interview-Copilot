@@ -111,7 +111,7 @@
     {
       "label": "BE: EF apply migrations",
       "type": "shell",
-      "command": "dotnet ef database update --project src/InterviewCopilot.Infrastructure --startup-project src/InterviewCopilot.Api",
+      "command": "dotnet ef database update -s src/InterviewCopilot.Api",
       "options": {
         "cwd": "${workspaceFolder}/backend"
       },
@@ -127,7 +127,7 @@
     {
       "label": "FE: install",
       "type": "shell",
-      "command": "npm install",
+      "command": "pnpm install",
       "options": {
         "cwd": "${workspaceFolder}/frontend"
       },
@@ -141,7 +141,7 @@
     {
       "label": "FE: gen:api",
       "type": "shell",
-      "command": "npm run gen:api",
+      "command": "pnpm gen:api",
       "options": {
         "cwd": "${workspaceFolder}/frontend"
       },

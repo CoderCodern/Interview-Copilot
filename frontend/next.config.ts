@@ -4,10 +4,8 @@ const nextConfig: NextConfig = {
   // Containerized standalone output for Docker/ECS (Doc 08 §1).
   output: "standalone",
   reactStrictMode: true,
-  experimental: {
-    // React Compiler is stable in Next 16 — auto-memoization (Doc 06 §6).
-    reactCompiler: true,
-  },
+  // React Compiler moved to top-level in Next.js 16 (Doc 06 §6).
+  reactCompiler: true,
   async headers() {
     // Baseline security headers (Doc 10 §6); CSP tightened per environment.
     return [

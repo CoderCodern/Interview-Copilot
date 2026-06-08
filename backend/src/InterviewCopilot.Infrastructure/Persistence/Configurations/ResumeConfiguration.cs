@@ -1,3 +1,4 @@
+using System.Text.Json;
 using InterviewCopilot.Domain.Common;
 using InterviewCopilot.Domain.Resumes;
 using Microsoft.EntityFrameworkCore;
@@ -38,17 +39,14 @@ public sealed class ResumeConfiguration : IEntityTypeConfiguration<Resume>
             s.OwnsOne(x => x.Blob);
         });
 
-        // ResumeProfile (rich nested structure) as a JSON column.
-        builder.OwnsOne(r => r.Profile, p =>
-        {
-            p.ToJson("profile");
-            p.OwnsOne(x => x.Contact);
-            p.OwnsMany(x => x.Skills);
-            p.OwnsMany(x => x.Experience);
-            p.OwnsMany(x => x.Projects);
-            p.OwnsMany(x => x.Education);
-            p.OwnsMany(x => x.Certifications);
-        });
+        // ResumeProfile is a complex positional record with nested IReadOnlyList<T> collections.
+        // A direct jsonb conversion is simpler and more reliable than OwnsMany for this shape.
+        builder.Property(r => r.Profile)
+            .HasColumnName("profile")
+            .HasColumnType("jsonb")
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                v => JsonSerializer.Deserialize<ResumeProfile>(v, (JsonSerializerOptions?)null));
 
         // One current resume per candidate (Doc 04 §3).
         builder.HasIndex(r => r.OwnerId)

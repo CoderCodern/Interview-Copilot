@@ -1,45 +1,46 @@
 @import "tailwindcss";
 
-/* Dark mode driven by a `.dark` class on <html> (Doc 06, DESIGN.md §13). */
+/* Dark mode driven by a `.dark` class on <html> (Doc 06, DESIGN.md §13). Light/parchment is default. */
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
  * Design tokens — the single source of truth is DESIGN.md §3–5.
- * Light theme defaults; .dark overrides below.
+ * Warm, editorial system (Claude/Anthropic-inspired): parchment canvas, terracotta accent,
+ * exclusively warm-toned neutrals. Light/parchment theme defaults; .dark overrides below.
  */
 :root {
-  --background: #fbfbfd;
-  --surface: #ffffff;
-  --surface-muted: #f4f4f7;
-  --foreground: #0b0b12;
-  --muted-foreground: #5b5b6b;
-  --border: #e6e6ec;
-  --primary: #5b5bd6;
-  --primary-foreground: #ffffff;
-  --primary-hover: #4a4abf;
-  --accent: #7c5cfc;
-  --success: #1a9e6c;
-  --warning: #c98a00;
-  --danger: #d6455d;
-  --ring: #5b5bd6;
+  --background: #f5f4ed;
+  --surface: #faf9f5;
+  --surface-muted: #e8e6dc;
+  --foreground: #141413;
+  --muted-foreground: #5e5d59;
+  --border: #e8e6dc;
+  --primary: #c96442;
+  --primary-foreground: #faf9f5;
+  --primary-hover: #b5563a;
+  --accent: #d97757;
+  --success: #3f7a4f;
+  --warning: #a8741c;
+  --danger: #b53333;
+  --ring: #c96442;
   --radius: 0.75rem;
 }
 
 .dark {
-  --background: #0a0a0f;
-  --surface: #121219;
-  --surface-muted: #1a1a24;
-  --foreground: #ececf1;
-  --muted-foreground: #9a9aab;
-  --border: #26262f;
-  --primary: #7c7cf0;
-  --primary-foreground: #0a0a0f;
-  --primary-hover: #6a6ae0;
-  --accent: #9d7bff;
-  --success: #3dd68c;
-  --warning: #e0a93b;
-  --danger: #ff6b85;
-  --ring: #7c7cf0;
+  --background: #141413;
+  --surface: #1e1e1c;
+  --surface-muted: #30302e;
+  --foreground: #f5f4ed;
+  --muted-foreground: #b0aea5;
+  --border: #30302e;
+  --primary: #d97757;
+  --primary-foreground: #141413;
+  --primary-hover: #c96442;
+  --accent: #d97757;
+  --success: #6cba7f;
+  --warning: #d8a24a;
+  --danger: #e0685f;
+  --ring: #d97757;
 }
 
 /* Expose tokens to Tailwind utilities (bg-background, text-foreground, etc.). */
@@ -52,6 +53,7 @@
   --color-border: var(--border);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
   --color-accent: var(--accent);
   --color-success: var(--success);
   --color-warning: var(--warning);
@@ -59,6 +61,7 @@
   --color-ring: var(--ring);
   --radius-lg: var(--radius);
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-source-serif), Georgia, "Times New Roman", serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
@@ -71,6 +74,27 @@ body {
   color: var(--color-foreground);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/*
+ * Editorial typography (DESIGN.md §4): serif headlines at weight 500 (the ceiling),
+ * tight-but-comfortable leading; generous body line-height for book-like reading.
+ */
+h1, h2, h3, h4 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  line-height: 1.18;
+  letter-spacing: -0.005em;
+}
+
+p {
+  line-height: 1.6;
+}
+
+/* Warm selection, not the browser blue. */
+::selection {
+  background: color-mix(in srgb, var(--accent) 28%, transparent);
 }
 
 /* Respect reduced motion globally (DESIGN.md §8, §12). */
