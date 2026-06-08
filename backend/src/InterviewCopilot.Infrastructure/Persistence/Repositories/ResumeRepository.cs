@@ -13,5 +13,5 @@ public sealed class ResumeRepository(AppDbContext db) : IResumeRepository
     public async Task<Resume?> GetCurrentAsync(CandidateId ownerId, CancellationToken ct = default) =>
         await db.Resumes.FirstOrDefaultAsync(r => r.OwnerId == ownerId && r.IsCurrent, ct);
 
-    public void Add(Resume resume) => db.Resumes.Add(resume);
+    public void Add(Resume aggregate) => db.Resumes.Add(aggregate);
 }

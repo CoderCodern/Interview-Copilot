@@ -49,13 +49,13 @@ public sealed record ChatChunk(string Delta, bool IsFinal);
 /// <summary>Provider-agnostic chat completion port (Doc 07 §1).</summary>
 public interface IChatCompletionService
 {
-    Task<ChatResult> CompleteAsync(ChatRequest request, CancellationToken ct = default);
-    IAsyncEnumerable<ChatChunk> StreamAsync(ChatRequest request, CancellationToken ct = default);
+    public Task<ChatResult> CompleteAsync(ChatRequest request, CancellationToken ct = default);
+    public IAsyncEnumerable<ChatChunk> StreamAsync(ChatRequest request, CancellationToken ct = default);
 }
 
 /// <summary>Embeddings for RAG over pgvector (Doc 04 §4, Doc 07 §4).</summary>
 public interface IEmbeddingService
 {
-    Task<IReadOnlyList<float[]>> EmbedAsync(IReadOnlyList<string> inputs, CancellationToken ct = default);
-    int Dimensions { get; }
+    public Task<IReadOnlyList<float[]>> EmbedAsync(IReadOnlyList<string> inputs, CancellationToken ct = default);
+    public int Dimensions { get; }
 }

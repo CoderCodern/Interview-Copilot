@@ -1,3 +1,4 @@
+using System.Globalization;
 using InterviewCopilot.Api.Authentication;
 using InterviewCopilot.Api.Endpoints;
 using InterviewCopilot.Application;
@@ -15,7 +16,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseSerilog((ctx, cfg) => cfg
     .ReadFrom.Configuration(ctx.Configuration)
     .Enrich.FromLogContext()
-    .WriteTo.Console()
+    .WriteTo.Console(formatProvider: CultureInfo.InvariantCulture)
     .WriteTo.OpenTelemetry());
 
 // ---- Application + Infrastructure (Clean Architecture composition root) ------
@@ -47,7 +48,6 @@ builder.Services.AddOpenTelemetry()
     .WithTracing(t => t
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation()
-        .AddNpgsql()
         .AddOtlpExporter())
     .WithMetrics(m => m
         .AddAspNetCoreInstrumentation()
@@ -60,7 +60,6 @@ builder.Services.AddCors(o => o.AddDefaultPolicy(p => p
     .WithOrigins(builder.Configuration.GetSection("Cors:Origins").Get<string[]>() ?? [])
     .AllowAnyHeader().AllowAnyMethod()));
 builder.Services.AddHealthChecks();
-// .AddNpgSql(...).AddRedis(...) wired per Doc 09 §4
 
 var app = builder.Build();
 
@@ -73,7 +72,6 @@ app.UseAuthorization();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    // app.MapScalarApiReference(); // interactive docs in non-prod
 }
 
 app.MapHealthChecks("/health/live");
@@ -82,9 +80,7 @@ app.MapHealthChecks("/health/ready");
 // Versioned endpoint groups, one per bounded context (Doc 05 §2).
 var v1 = app.MapGroup("/api/v1").RequireAuthorization();
 v1.MapResumeEndpoints();
-// v1.MapCompanyEndpoints(); v1.MapJobDescriptionEndpoints();
-// v1.MapPreparationEndpoints(); v1.MapMockEndpoints();
 
-app.Run();
+await app.RunAsync();
 
-public partial class Program; // for WebApplicationFactory integration tests
+public partial class Program { protected Program() { } }

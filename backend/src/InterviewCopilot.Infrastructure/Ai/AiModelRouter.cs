@@ -13,7 +13,7 @@ namespace InterviewCopilot.Infrastructure.Ai;
 ///  4. meters token usage and cost.
 /// This is where "AI cost optimization" lives (Doc 07 §2/§3/§7).
 /// </summary>
-public sealed class AiModelRouter(
+public sealed partial class AiModelRouter(
     IEnumerable<IChatProvider> providers,
     IOptions<AiCatalogOptions> options,
     IAiUsageRecorder usageRecorder,
@@ -29,7 +29,11 @@ public sealed class AiModelRouter(
 
         foreach (var model in candidates)
         {
-            if (!_providers.TryGetValue(model.Provider, out var provider)) continue;
+            if (!_providers.TryGetValue(model.Provider, out var provider))
+            {
+                continue;
+            }
+
             try
             {
                 var completion = await provider.CompleteAsync(model.Model, request, ct);
@@ -47,7 +51,7 @@ public sealed class AiModelRouter(
             catch (Exception ex)
             {
                 last = ex;
-                logger.LogWarning(ex, "Provider {Provider} model {Model} failed; trying next in tier", model.Provider, model.Model);
+                LogProviderFailed(logger, model.Provider, model.Model, ex);
             }
         }
 
@@ -56,7 +60,8 @@ public sealed class AiModelRouter(
 
     public IAsyncEnumerable<ChatChunk> StreamAsync(ChatRequest request, CancellationToken ct = default)
     {
-        var model = SelectModels(request).First();
+        var candidates = SelectModels(request);
+        var model = candidates[0];
         return _providers[model.Provider].StreamAsync(model.Model, request, ct);
     }
 
@@ -68,16 +73,19 @@ public sealed class AiModelRouter(
 
         return _catalog.Models
             .Where(m => m.Enabled && m.Tier == tier)
-            .OrderBy(m => m.InputPerMTok + m.OutputPerMTok)                  // cheapest first
+            .OrderBy(m => m.InputPerMTok + m.OutputPerMTok)
             .ThenByDescending(m => m.Provider == _catalog.DefaultProviderTieBreak)
             .ToList();
     }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Provider {Provider} model {Model} failed; trying next in tier")]
+    private static partial void LogProviderFailed(ILogger logger, AiProvider provider, string model, Exception ex);
 }
 
 /// <summary>Persists a <c>token_usage</c> row per call for budgeting + dashboards (Doc 04 §5, Doc 11 §8).</summary>
 public interface IAiUsageRecorder
 {
-    Task RecordAsync(AiTask task, ModelEntry model, ProviderCompletion completion, decimal costUsd, CancellationToken ct);
+    public Task RecordAsync(AiTask task, ModelEntry model, ProviderCompletion completion, decimal costUsd, CancellationToken cancellationToken);
 }
 
 public sealed class AllProvidersUnavailableException(string message, Exception? inner)

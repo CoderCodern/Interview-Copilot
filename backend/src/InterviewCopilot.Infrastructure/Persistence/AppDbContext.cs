@@ -26,10 +26,10 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options, ICurren
         base.OnModelCreating(modelBuilder);
     }
 
-    public override async Task<int> SaveChangesAsync(CancellationToken ct = default)
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         // In production: collect aggregate domain events here and write them to the
         // outbox table in the same transaction (Doc 01 §5) before SaveChanges.
-        return await base.SaveChangesAsync(ct);
+        return await base.SaveChangesAsync(cancellationToken);
     }
 }

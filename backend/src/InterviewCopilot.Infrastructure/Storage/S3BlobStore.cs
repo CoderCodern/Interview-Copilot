@@ -8,9 +8,8 @@ namespace InterviewCopilot.Infrastructure.Storage;
 public sealed class S3BlobStore(/* IAmazonS3 s3, IOptions<StorageOptions> options */) : IBlobStore
 {
     public Task<string> CreatePresignedUploadUrlAsync(string key, string contentType, TimeSpan ttl, CancellationToken ct = default) =>
-        // TODO: s3.GetPreSignedURL(new GetPreSignedUrlRequest { BucketName=..., Key=key, Verb=PUT, Expires=now+ttl })
-        throw new NotImplementedException("Wire AWS S3 presign here (scaffold).");
+        throw new NotImplementedException("Wire AWS S3 GetPreSignedURL with Verb=PUT.");
 
     public Task<Stream> OpenReadAsync(BlobReference reference, CancellationToken ct = default) =>
-        throw new NotImplementedException("Wire AWS S3 GetObject here (scaffold).");
+        throw new NotImplementedException("Wire AWS S3 GetObject.");
 }

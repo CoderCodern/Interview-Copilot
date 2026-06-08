@@ -1,3 +1,5 @@
+#pragma warning disable CA1716 // 'Resume' conflicts with VB.NET keyword — intentional aggregate name
+
 using InterviewCopilot.Domain.Common;
 
 namespace InterviewCopilot.Domain.Resumes;
@@ -17,8 +19,9 @@ public sealed class Resume : AggregateRoot<ResumeId>
         CreatedAt = DateTimeOffset.UtcNow;
     }
 
-    // EF Core materialization constructor.
+#pragma warning disable S1144 // EF Core uses this private constructor for materialization via reflection.
     private Resume(ResumeId id) : base(id) { OwnerId = default; Source = null!; }
+#pragma warning restore S1144
 
     public CandidateId OwnerId { get; }
     public AnalysisSource Source { get; private set; }
@@ -40,7 +43,10 @@ public sealed class Resume : AggregateRoot<ResumeId>
     public Result StartProcessing()
     {
         if (Status != AnalysisStatus.Pending)
+        {
             return Common.Error.Conflict("resume.invalid_transition", $"Cannot start processing from '{Status}'.");
+        }
+
         Status = AnalysisStatus.Processing;
         Touch();
         return Result.Success();
@@ -49,7 +55,10 @@ public sealed class Resume : AggregateRoot<ResumeId>
     public Result Complete(ResumeProfile profile)
     {
         if (Status != AnalysisStatus.Processing)
+        {
             return Common.Error.Conflict("resume.invalid_transition", $"Cannot complete from '{Status}'.");
+        }
+
         Profile = profile;
         Status = AnalysisStatus.Completed;
         Touch();
@@ -60,7 +69,10 @@ public sealed class Resume : AggregateRoot<ResumeId>
     public Result Fail(string reason)
     {
         if (Status is AnalysisStatus.Completed)
+        {
             return Common.Error.Conflict("resume.invalid_transition", "A completed resume cannot fail.");
+        }
+
         Status = AnalysisStatus.Failed;
         Error = reason;
         Touch();

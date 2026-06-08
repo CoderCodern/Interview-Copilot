@@ -14,12 +14,14 @@ public sealed class UnitOfWorkBehavior<TRequest, TResponse>(IUnitOfWork unitOfWo
     where TRequest : notnull
     where TResponse : Result
 {
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken ct)
+    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
-        var response = await next(ct);
+        var response = await next();
 
         if (request is ITransactional && response.IsSuccess)
-            await unitOfWork.SaveChangesAsync(ct);
+        {
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+        }
 
         return response;
     }

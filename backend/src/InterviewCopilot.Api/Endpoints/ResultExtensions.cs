@@ -24,7 +24,7 @@ public static class ResultExtensions
             "validation.failed" => StatusCodes.Status400BadRequest,
             "auth.forbidden" => StatusCodes.Status403Forbidden,
             "auth.unauthenticated" => StatusCodes.Status401Unauthorized,
-            _ when error.Code.EndsWith(".inputs_not_ready") => StatusCodes.Status422UnprocessableEntity,
+            _ when error.Code.EndsWith(".inputs_not_ready", StringComparison.Ordinal) => StatusCodes.Status422UnprocessableEntity,
             _ when error.Code.Contains("already") => StatusCodes.Status409Conflict,
             _ => StatusCodes.Status400BadRequest
         };

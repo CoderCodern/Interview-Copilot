@@ -59,7 +59,10 @@ public sealed class AnalysisSource : ValueObject
     public static Result<AnalysisSource> FromBlob(SourceType type, BlobReference blob)
     {
         if (type is not (SourceType.Pdf or SourceType.Docx or SourceType.Image))
+        {
             return Error.Validation("source.invalid_blob_type", "Blob sources must be Pdf, Docx, or Image.");
+        }
+
         return new AnalysisSource(type, null, blob, null);
     }
 

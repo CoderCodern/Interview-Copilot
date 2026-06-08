@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace InterviewCopilot.Api.Authentication;
 
@@ -7,13 +8,13 @@ namespace InterviewCopilot.Api.Authentication;
 /// Translates unhandled exceptions into RFC 9457 ProblemDetails, hiding internals while
 /// returning a correlation id for support (Doc 05 §5, Doc 10 §6).
 /// </summary>
-public sealed class GlobalExceptionHandler(IProblemDetailsService problemDetails, ILogger<GlobalExceptionHandler> logger)
+public sealed partial class GlobalExceptionHandler(IProblemDetailsService problemDetails, ILogger<GlobalExceptionHandler> logger)
     : IExceptionHandler
 {
-    public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken ct)
+    public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
         var correlationId = httpContext.TraceIdentifier;
-        logger.LogError(exception, "Unhandled exception {CorrelationId}", correlationId);
+        LogUnhandledException(logger, correlationId, exception);
 
         var (status, code) = exception switch
         {
@@ -33,4 +34,7 @@ public sealed class GlobalExceptionHandler(IProblemDetailsService problemDetails
             }
         });
     }
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Unhandled exception {CorrelationId}")]
+    private static partial void LogUnhandledException(ILogger logger, string correlationId, Exception ex);
 }

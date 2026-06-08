@@ -1,0 +1,156 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    // ─── Backend build (used as preLaunchTask for F5 debugging) ───────────────
+    {
+      "label": "BE: build",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "${workspaceFolder}/backend/InterviewCopilot.slnx",
+        "--configuration", "Debug",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "group": "build",
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      },
+      "problemMatcher": "$msCompile"
+    },
+
+    // ─── Backend watch (hot-reload without debugger) ───────────────────────────
+    {
+      "label": "BE: watch",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "watch",
+        "--project", "${workspaceFolder}/backend/src/InterviewCopilot.Api/InterviewCopilot.Api.csproj"
+      ],
+      "group": "build",
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": "$msCompile"
+    },
+
+    // ─── Backend tests ────────────────────────────────────────────────────────
+    {
+      "label": "BE: test",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "test",
+        "${workspaceFolder}/backend/InterviewCopilot.slnx",
+        "--logger", "console;verbosity=normal"
+      ],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": "$msCompile"
+    },
+
+    // ─── Backing services (Postgres, Redis, LocalStack, OTel) ─────────────────
+    {
+      "label": "Infra: start backing services",
+      "type": "shell",
+      "command": "docker compose up postgres redis localstack otel-collector -d",
+      "options": {
+        "cwd": "${workspaceFolder}/infra"
+      },
+      "group": "none",
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+
+    // ─── Full Docker stack ────────────────────────────────────────────────────
+    {
+      "label": "Infra: start full stack (Docker)",
+      "type": "shell",
+      "command": "docker compose up --build",
+      "options": {
+        "cwd": "${workspaceFolder}/infra"
+      },
+      "group": "none",
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    },
+
+    // ─── Stop Docker services ─────────────────────────────────────────────────
+    {
+      "label": "Infra: stop",
+      "type": "shell",
+      "command": "docker compose down",
+      "options": {
+        "cwd": "${workspaceFolder}/infra"
+      },
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+
+    // ─── EF migrations ────────────────────────────────────────────────────────
+    {
+      "label": "BE: EF apply migrations",
+      "type": "shell",
+      "command": "dotnet ef database update --project src/InterviewCopilot.Infrastructure --startup-project src/InterviewCopilot.Api",
+      "options": {
+        "cwd": "${workspaceFolder}/backend"
+      },
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+
+    // ─── Frontend ─────────────────────────────────────────────────────────────
+    {
+      "label": "FE: install",
+      "type": "shell",
+      "command": "npm install",
+      "options": {
+        "cwd": "${workspaceFolder}/frontend"
+      },
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "FE: gen:api",
+      "type": "shell",
+      "command": "npm run gen:api",
+      "options": {
+        "cwd": "${workspaceFolder}/frontend"
+      },
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

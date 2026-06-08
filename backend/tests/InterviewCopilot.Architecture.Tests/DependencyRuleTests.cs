@@ -10,7 +10,6 @@ namespace InterviewCopilot.Architecture.Tests;
 /// </summary>
 public class DependencyRuleTests
 {
-    private const string Domain = "InterviewCopilot.Domain";
     private const string Application = "InterviewCopilot.Application";
     private const string Infrastructure = "InterviewCopilot.Infrastructure";
 

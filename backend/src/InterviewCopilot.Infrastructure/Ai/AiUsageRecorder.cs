@@ -6,11 +6,9 @@ namespace InterviewCopilot.Infrastructure.Ai;
 /// <summary>Writes a <c>token_usage</c> row per AI call for budgeting + cost dashboards (Doc 04 §5, Doc 11 §8).</summary>
 public sealed class AiUsageRecorder(AppDbContext db) : IAiUsageRecorder
 {
-    public Task RecordAsync(AiTask task, ModelEntry model, ProviderCompletion completion, decimal costUsd, CancellationToken ct)
+    public Task RecordAsync(AiTask task, ModelEntry model, ProviderCompletion completion, decimal costUsd, CancellationToken cancellationToken)
     {
-        // TODO: db.Add(new TokenUsageRow(currentUser, task, model.Provider, model.Model,
-        //         completion.PromptTokens, completion.CompletionTokens, costUsd, completion.Cached));
-        //       Saved within the surrounding unit of work.
+        // Scaffold: wire db.Add(new TokenUsageRow(...)) here and save within the surrounding unit of work.
         _ = db;
         return Task.CompletedTask;
     }
@@ -22,5 +20,5 @@ public sealed class EmbeddingService : IEmbeddingService
     public int Dimensions => 1536;
 
     public Task<IReadOnlyList<float[]>> EmbedAsync(IReadOnlyList<string> inputs, CancellationToken ct = default) =>
-        throw new NotImplementedException("Wire embedding model (e.g. text-embedding-3-small) here (scaffold).");
+        throw new NotImplementedException("Wire embedding model (e.g. text-embedding-3-small) here.");
 }
