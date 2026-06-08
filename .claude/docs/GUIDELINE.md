@@ -400,7 +400,8 @@ Install all tools before proceeding. Every option below requires them.
 | **Docker Desktop** | Latest stable | [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop) |
 | **.NET SDK** | 10.0.x | [dot.net/download](https://dot.net/download) |
 | **Node.js** | 22 LTS | [nodejs.org](https://nodejs.org) |
-| **dotnet-ef** (global tool) | Latest | `dotnet tool install -g dotnet-ef` |
+| **pnpm** | Latest | `npm install -g pnpm` |
+| **dotnet-ef** (local tool) | Pinned in `dotnet-tools.json` | `cd backend && dotnet tool restore` |
 | **VS Code** | Latest | [code.visualstudio.com](https://code.visualstudio.com) *(Option C only)* |
 
 Verify everything is installed and on the correct version:
@@ -408,8 +409,9 @@ Verify everything is installed and on the correct version:
 ```bash
 dotnet --version        # expect 10.x.x
 node --version          # expect v22.x.x
+pnpm --version          # expect 9.x.x or later
 docker info             # must show "Server" block — means Docker Desktop is running
-dotnet ef --version     # expect Entity Framework Core tools x.x.x
+cd backend && dotnet tool restore && dotnet ef --version   # Entity Framework Core tools
 ```
 
 ---
@@ -542,31 +544,37 @@ docker compose ps
 # postgres should show "(healthy)" in the STATUS column
 ```
 
-#### B2 — Configure backend secrets (first time only)
+#### B2 — Restore backend tools and configure secrets (first time only)
 
-The API reads sensitive values from [.NET User Secrets](https://learn.microsoft.com/aspnet/core/security/app-secrets) locally. **Never put credentials in `appsettings.json`.**
+First, restore the pinned dotnet local tools (includes `dotnet-ef`):
 
 ```bash
-cd backend/src/InterviewCopilot.Api
+cd backend
+dotnet tool restore
+```
 
-# Postgres (matches docker-compose default credentials)
+Then set sensitive values via [.NET User Secrets](https://learn.microsoft.com/aspnet/core/security/app-secrets). **Never put credentials in `appsettings.json`.**
+
+```bash
+# Run from the backend/ directory — --project points to the API csproj
 dotnet user-secrets set "ConnectionStrings:Postgres" \
-  "Host=localhost;Port=5432;Database=interviewcopilot;Username=app;Password=localdev"
+  "Host=localhost;Port=5432;Database=interviewcopilot;Username=postgres;Password=YOUR_PW" \
+  --project src/InterviewCopilot.Api
 
 # Auth (use any OIDC provider — Auth0, Keycloak, Azure AD, Cognito)
-dotnet user-secrets set "Auth:Authority" "https://YOUR_IDP_DOMAIN/"
-dotnet user-secrets set "Auth:Audience"  "interview-copilot-api"
+dotnet user-secrets set "Auth:Authority" "https://YOUR_IDP_DOMAIN/" --project src/InterviewCopilot.Api
+dotnet user-secrets set "Auth:Audience"  "interview-copilot-api"    --project src/InterviewCopilot.Api
 
 # AI provider API keys (set only the ones you are using)
-dotnet user-secrets set "Ai:OpenAi:ApiKey"  "sk-..."
-dotnet user-secrets set "Ai:Claude:ApiKey"  "sk-ant-..."
-dotnet user-secrets set "Ai:Gemini:ApiKey"  "AIza..."
+dotnet user-secrets set "Ai:OpenAi:ApiKey"  "sk-..."      --project src/InterviewCopilot.Api
+dotnet user-secrets set "Ai:Claude:ApiKey"  "sk-ant-..."  --project src/InterviewCopilot.Api
+dotnet user-secrets set "Ai:Gemini:ApiKey"  "AIza..."     --project src/InterviewCopilot.Api
 ```
 
 Verify stored secrets:
 
 ```bash
-dotnet user-secrets list
+dotnet user-secrets list --project src/InterviewCopilot.Api
 ```
 
 Secrets are stored in `~/.microsoft/usersecrets/<project-guid>/secrets.json` — never committed to git.
@@ -588,16 +596,15 @@ Create the initial migration (only needed if no `Migrations/` folder exists yet)
 ```bash
 cd backend
 dotnet ef migrations add InitialCreate \
-  --project src/InterviewCopilot.Infrastructure \
-  --startup-project src/InterviewCopilot.Api
+  -p src/InterviewCopilot.Infrastructure \
+  -s src/InterviewCopilot.Api
 ```
 
-Apply all pending migrations to the running Postgres container:
+Apply all pending migrations to the running Postgres instance:
 
 ```bash
-dotnet ef database update \
-  --project src/InterviewCopilot.Infrastructure \
-  --startup-project src/InterviewCopilot.Api
+cd backend
+dotnet ef database update -s src/InterviewCopilot.Api
 ```
 
 > Postgres must be running (Step B1) for `database update` to succeed. The connection string comes from `appsettings.json` + user secrets.
@@ -605,24 +612,24 @@ dotnet ef database update \
 #### B5 — Run the API
 
 ```bash
-cd backend/src/InterviewCopilot.Api
-dotnet run
+cd backend
+dotnet run --project src/InterviewCopilot.Api
 ```
 
 API available at **http://localhost:8080**.
-OpenAPI spec (development only): **http://localhost:8080/openapi/v1.json**.
+Interactive API explorer (development only): **http://localhost:8080/scalar/v1**.
 
 For hot-reload on file save:
 
 ```bash
-dotnet watch
+cd backend/src/InterviewCopilot.Api && dotnet watch
 ```
 
 #### B6 — Set up and run the frontend
 
 ```bash
 cd frontend
-npm install
+pnpm install
 ```
 
 Create your local environment file:
@@ -640,13 +647,13 @@ NEXT_PUBLIC_API_BASE_URL=http://localhost:8080/api/v1
 Generate the TypeScript API client from the OpenAPI spec (first time, and after any backend endpoint change):
 
 ```bash
-npm run gen:api
+pnpm gen:api
 ```
 
 Start the dev server:
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 Frontend available at **http://localhost:3000**.
@@ -768,8 +775,8 @@ Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) → **Tasks: Run Task*
 | `BE: build` | `dotnet build` on the full solution |
 | `BE: watch` | `dotnet watch` with hot-reload |
 | `BE: test` | `dotnet test` with console output |
-| `BE: EF apply migrations` | `dotnet ef database update` |
-| `FE: install` | `npm install` in `frontend/` |
+| `BE: EF apply migrations` | `dotnet ef database update -s src/InterviewCopilot.Api` |
+| `FE: install` | `pnpm install` in `frontend/` |
 | `FE: gen:api` | Regenerates `types/api.d.ts` from OpenAPI spec |
 | `Infra: start backing services` | `docker compose up postgres redis localstack otel-collector -d` |
 | `Infra: start full stack (Docker)` | `docker compose up --build` |
@@ -814,16 +821,16 @@ dotnet test --logger "console;verbosity=normal"
 cd frontend
 
 # Unit / component tests (Vitest)
-npm test
+pnpm test
 
 # Watch mode
-npm run test:watch
+pnpm test:watch
 
 # Type-check (no emit)
-npm run typecheck
+pnpm typecheck
 
 # E2E (Playwright) — API must be running first
-npm run e2e
+pnpm e2e
 ```
 
 ---
@@ -832,19 +839,21 @@ npm run e2e
 
 | Task | Command |
 |------|---------|
+| Restore dotnet local tools | `cd backend && dotnet tool restore` |
 | Build backend (debug) | `cd backend && dotnet build` |
 | Build backend (release, strict) | `cd backend && dotnet build -c Release -p:TreatWarningsAsErrors=true` |
+| Run backend | `cd backend && dotnet run --project src/InterviewCopilot.Api` |
 | Run backend with hot-reload | `cd backend/src/InterviewCopilot.Api && dotnet watch` |
 | Run all backend tests | `cd backend && dotnet test` |
-| Add EF migration | `cd backend && dotnet ef migrations add <Name> --project src/InterviewCopilot.Infrastructure --startup-project src/InterviewCopilot.Api` |
-| Apply EF migrations | `cd backend && dotnet ef database update --project src/InterviewCopilot.Infrastructure --startup-project src/InterviewCopilot.Api` |
-| Revert last EF migration | `cd backend && dotnet ef migrations remove --project src/InterviewCopilot.Infrastructure --startup-project src/InterviewCopilot.Api` |
-| Install frontend deps | `cd frontend && npm install` |
-| Start frontend dev server | `cd frontend && npm run dev` |
-| Frontend type-check | `cd frontend && npm run typecheck` |
-| Frontend lint | `cd frontend && npm run lint` |
-| Generate OpenAPI client types | `cd frontend && npm run gen:api` |
-| Run frontend tests | `cd frontend && npm test` |
+| Add EF migration | `cd backend && dotnet ef migrations add <Name> -p src/InterviewCopilot.Infrastructure -s src/InterviewCopilot.Api` |
+| Apply EF migrations | `cd backend && dotnet ef database update -s src/InterviewCopilot.Api` |
+| Revert last EF migration | `cd backend && dotnet ef migrations remove -p src/InterviewCopilot.Infrastructure -s src/InterviewCopilot.Api` |
+| Install frontend deps | `cd frontend && pnpm install` |
+| Start frontend dev server | `cd frontend && pnpm dev` |
+| Frontend type-check | `cd frontend && pnpm typecheck` |
+| Frontend lint | `cd frontend && pnpm lint` |
+| Generate OpenAPI client types | `cd frontend && pnpm gen:api` |
+| Run frontend tests | `cd frontend && pnpm test` |
 | Start backing services only | `cd infra && docker compose up postgres redis localstack otel-collector -d` |
 | Start full stack in Docker | `cd infra && docker compose up --build` |
 | View container logs | `cd infra && docker compose logs -f <service>` |

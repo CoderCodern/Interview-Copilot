@@ -16,6 +16,8 @@ dist/
 *.tsbuildinfo
 next-env.d.ts
 /frontend/types/api.d.ts
+# Using pnpm — ignore npm lockfile
+/frontend/package-lock.json
 
 # ---- Env / secrets (never commit) ----
 .env

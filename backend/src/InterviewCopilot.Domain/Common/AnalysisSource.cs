@@ -3,6 +3,8 @@ namespace InterviewCopilot.Domain.Common;
 /// <summary>Pointer to an object in blob storage (S3) — Doc 04, Doc 10 §5.</summary>
 public sealed class BlobReference : ValueObject
 {
+    private BlobReference() { Key = null!; ContentType = null!; }  // required by EF Core owned-entity materialization
+
     private BlobReference(string key, string contentType, string? checksum)
     {
         Key = key;
@@ -33,6 +35,8 @@ public sealed class BlobReference : ValueObject
 /// </summary>
 public sealed class AnalysisSource : ValueObject
 {
+    private AnalysisSource() { }  // required by EF Core owned-entity materialization
+
     private AnalysisSource(SourceType type, string? url, BlobReference? blob, string? rawText)
     {
         Type = type;

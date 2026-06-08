@@ -54,26 +54,62 @@ The design is documented as a numbered suite in [`docs/`](docs/). Start with the
 **AI:** provider-agnostic abstraction routing across OpenAI, Anthropic Claude, and Google Gemini with tiered model selection, prompt caching, RAG, and per-call cost metering
 **Infra:** Docker · AWS (ECS Fargate, RDS, ElastiCache, SQS, S3, CloudFront) · Terraform · GitHub Actions (OIDC)
 
-## Quick start (local)
+## Quick start (local — no Docker)
 
-> The scaffold pins versions and shows structure. Provider SDK calls and a few adapters are marked `TODO` (see Doc 07/08); fill credentials in env/secrets before running for real.
+### Prerequisites
+
+- [.NET 10 SDK](https://dotnet.microsoft.com/download)
+- [Node.js 22+](https://nodejs.org) + [pnpm](https://pnpm.io/installation)
+- PostgreSQL 16 with the [pgvector extension](https://github.com/pgvector/pgvector)
+
+### 1 — Backend
 
 ```bash
-# 1) Bring up backing services + apps
-cd infra && docker compose up --build
-#    Postgres+pgvector :5432 · Redis :6379 · LocalStack :4566 · OTel :4317
-#    API :8080 · Web :3000
-
-# 2) Backend dev loop
 cd backend
-dotnet restore
-dotnet build
-dotnet test                      # unit + architecture (dependency-rule) tests
 
-# 3) Frontend dev loop
+# Restore the dotnet-ef local tool
+dotnet tool restore          # reads .config/dotnet-tools.json
+
+# Set your real DB password (stored in User Secrets, never committed)
+dotnet user-secrets set "ConnectionStrings:Postgres" \
+  "Host=localhost;Port=5432;Database=interviewcopilot;Username=postgres;Password=YOUR_PASSWORD" \
+  --project src/InterviewCopilot.Api
+
+# Optional — add AI provider keys for live AI calls
+dotnet user-secrets set "Ai:Providers:OpenAi:ApiKey" "sk-..." --project src/InterviewCopilot.Api
+dotnet user-secrets set "Ai:Providers:Claude:ApiKey" "sk-ant-..." --project src/InterviewCopilot.Api
+dotnet user-secrets set "Ai:Providers:Gemini:ApiKey" "AIza..." --project src/InterviewCopilot.Api
+
+# Create the database schema (first time only, and after each new migration)
+dotnet ef migrations add InitialCreate \
+  -p src/InterviewCopilot.Infrastructure \
+  -s src/InterviewCopilot.Api
+dotnet ef database update -s src/InterviewCopilot.Api
+
+# Build, test, and run
+dotnet build
+dotnet test                                    # unit + architecture tests
+dotnet run --project src/InterviewCopilot.Api  # http://localhost:8080
+# Interactive API explorer → http://localhost:8080/scalar/v1
+```
+
+> **Dev mode is auth-free.** When `ASPNETCORE_ENVIRONMENT=Development` (the default for `dotnet run`), a `DevAuthHandler` auto-authenticates every request as a fixed dev candidate — no IDP required. S3 is also replaced with a local-disk blob store under `$TEMP/interview-copilot-blobs`.
+
+### 2 — Frontend
+
+```bash
 cd frontend
-npm install
-npm run dev                      # http://localhost:3000
+pnpm install
+pnpm dev    # http://localhost:3000
+```
+
+`frontend/.env.local` already points at `http://localhost:8080/api/v1`. Edit it if your BE runs on a different port.
+
+### Docker (later)
+
+```bash
+cd infra && docker compose up --build
+# Postgres+pgvector :5432 · OTel :4317 · API :8080 · Web :3000
 ```
 
 ## Architectural highlights

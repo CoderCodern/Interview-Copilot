@@ -18,7 +18,7 @@ export function ResumeList() {
     return (
       <div className="space-y-3">
         {[0, 1, 2].map((i) => (
-          <div key={i} className="h-16 animate-pulse rounded-xl border border-border bg-surface" />
+          <div key={i} className="h-16 animate-pulse rounded-2xl border border-border bg-surface" />
         ))}
       </div>
     );
@@ -30,9 +30,11 @@ export function ResumeList() {
 
   if (!data?.length) {
     return (
-      <div className="rounded-xl border border-dashed border-border bg-surface p-10 text-center">
-        <FileText className="mx-auto size-8 text-muted-foreground" />
-        <p className="mt-3 font-medium">No resumes yet</p>
+      <div className="rounded-2xl border border-dashed border-border bg-surface p-12 text-center">
+        <span className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-surface-muted text-primary">
+          <FileText className="size-6" />
+        </span>
+        <p className="mt-4 text-lg">No resumes yet</p>
         <p className="mt-1 text-sm text-muted-foreground">Upload one to get started.</p>
       </div>
     );
@@ -46,10 +48,12 @@ export function ResumeList() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.18, delay: Math.min(i * 0.03, 0.24) }}
-          className="flex items-center justify-between rounded-xl border border-border bg-surface p-4"
+          className="flex items-center justify-between rounded-2xl border border-border bg-surface p-4 transition-colors hover:border-primary/40"
         >
           <div className="flex items-center gap-3">
-            <FileText className="size-5 text-muted-foreground" />
+            <span className="flex size-9 items-center justify-center rounded-lg bg-surface-muted text-primary">
+              <FileText className="size-5" />
+            </span>
             <div>
               <p className="text-sm font-medium">Resume {r.id.slice(0, 8)}</p>
               <p className="text-xs text-muted-foreground">{new Date(r.createdAt).toLocaleDateString()}</p>

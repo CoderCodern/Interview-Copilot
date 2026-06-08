@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <RootNamespace>InterviewCopilot.Api</RootNamespace>
+    <UserSecretsId>interview-copilot-api</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

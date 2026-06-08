@@ -1,0 +1,30 @@
+# Node
+frontend/node_modules/
+frontend/.next/
+frontend/.turbo/
+frontend/out/
+
+# .NET
+backend/**/bin/
+backend/**/obj/
+backend/**/.vs/
+
+# Test artifacts
+backend/**/TestResults/
+backend/**/coverage/
+
+# Local config / secrets
+**/*.user
+**/*.env
+**/.env.local
+**/.env.*.local
+backend/src/**/appsettings.Development.json
+
+# Version control / tooling
+.git/
+.gitignore
+.claude/
+.vscode/
+docs/
+infra/terraform/
+*.md

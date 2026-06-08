@@ -1,14 +1,16 @@
 # Multi-stage build for the Next.js 16 app using standalone output (Doc 06 §8, Doc 08 §1).
 FROM node:22-alpine AS deps
+RUN corepack enable
 WORKDIR /app
-COPY frontend/package.json frontend/package-lock.json* ./
-RUN npm ci
+COPY frontend/package.json frontend/pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 
 FROM node:22-alpine AS build
+RUN corepack enable
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY frontend/ ./
-RUN npm run build
+RUN pnpm build
 
 FROM node:22-alpine AS runtime
 WORKDIR /app

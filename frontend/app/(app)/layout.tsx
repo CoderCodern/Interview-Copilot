@@ -13,13 +13,15 @@ const nav = [
 /** Authenticated app shell (Doc 06 §6, DESIGN.md §6). */
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen">
-      <aside className="hidden w-60 flex-col border-r border-border bg-surface p-4 md:flex">
-        <Link href="/dashboard" className="mb-6 flex items-center gap-2 px-2">
-          <Sparkles className="size-5 text-primary" />
-          <span className="font-semibold">Interview Copilot</span>
+    <div className="flex min-h-screen bg-background">
+      <aside className="hidden w-60 flex-col border-r border-border bg-surface px-3 py-5 md:flex">
+        <Link href="/dashboard" className="mb-7 flex items-center gap-2.5 px-2">
+          <span className="flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <Sparkles className="size-4" />
+          </span>
+          <span className="font-serif text-lg font-medium tracking-tight">Interview Copilot</span>
         </Link>
-        <nav className="flex flex-col gap-1">
+        <nav className="flex flex-col gap-0.5">
           {nav.map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
@@ -31,6 +33,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </Link>
           ))}
         </nav>
+        <div className="mt-auto rounded-xl border border-border bg-surface-muted/60 p-3 text-xs leading-relaxed text-muted-foreground">
+          <p className="font-medium text-foreground">Walk in prepared.</p>
+          <p className="mt-1">Grounded, cited, personalized to your resume and target role.</p>
+        </div>
       </aside>
       <main className="flex-1 px-6 py-8">
         <div className="mx-auto max-w-5xl">{children}</div>
