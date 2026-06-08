@@ -1,0 +1,76 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    // ─── Backend ─────────────────────────────────────────────────────────────
+    {
+      "name": "BE: Launch API (Debug)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "BE: build",
+      "program": "${workspaceFolder}/backend/src/InterviewCopilot.Api/bin/Debug/net10.0/InterviewCopilot.Api.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/backend/src/InterviewCopilot.Api",
+      "stopAtEntry": false,
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://localhost:8080"
+      },
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "console": "internalConsole"
+    },
+
+    // ─── Frontend ─────────────────────────────────────────────────────────────
+    {
+      // Launches Next.js dev server with Node inspector enabled.
+      // Set breakpoints in server components / API routes and hit them here.
+      "name": "FE: Next.js Server (Debug)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "${workspaceFolder}/frontend",
+      "env": {
+        "NODE_OPTIONS": "--inspect",
+        "NODE_ENV": "development"
+      },
+      "port": 9229,
+      "console": "integratedTerminal",
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "- Local:\\s+(https?://\\S+)"
+      }
+    },
+    {
+      // Attach Chrome DevTools for client-side (browser) debugging.
+      // Start "FE: Next.js Server (Debug)" first, then start this.
+      "name": "FE: Attach Chrome (Client-Side)",
+      "type": "chrome",
+      "request": "attach",
+      "port": 9222,
+      "urlFilter": "http://localhost:3000/*",
+      "webRoot": "${workspaceFolder}/frontend",
+      "sourceMapPathOverrides": {
+        "webpack://_N_E/*": "${workspaceFolder}/frontend/*"
+      }
+    }
+  ],
+
+  // ─── Compound ─────────────────────────────────────────────────────────────
+  "compounds": [
+    {
+      // Press F5 with this selected to start both API and Next.js simultaneously.
+      // Requires backing services (Postgres, Redis) to be running first.
+      "name": "Full Stack: BE + FE",
+      "configurations": ["BE: Launch API (Debug)", "FE: Next.js Server (Debug)"],
+      "stopAll": true,
+      "presentation": {
+        "hidden": false,
+        "group": "compound",
+        "order": 1
+      }
+    }
+  ]
+}

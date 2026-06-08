@@ -1,0 +1,29 @@
+{
+  "recommendations": [
+    // ─── C# / .NET ────────────────────────────────────────────────────────────
+    "ms-dotnettools.csdevkit",          // C# Dev Kit — debugger, IntelliSense, test runner
+    "ms-dotnettools.csharp",            // C# language support (dependency of Dev Kit)
+    "ms-dotnettools.vscode-dotnet-runtime", // .NET runtime installer
+
+    // ─── Frontend ─────────────────────────────────────────────────────────────
+    "dbaeumer.vscode-eslint",           // ESLint
+    "esbenp.prettier-vscode",           // Prettier formatter
+    "bradlc.vscode-tailwindcss",        // Tailwind CSS IntelliSense
+
+    // ─── Docker & Infra ───────────────────────────────────────────────────────
+    "ms-azuretools.vscode-docker",      // Docker — manage containers, images, compose
+    "hashicorp.terraform",              // Terraform syntax + validation
+
+    // ─── Database ─────────────────────────────────────────────────────────────
+    "mtxr.sqltools",                    // SQLTools — query Postgres from VS Code
+    "mtxr.sqltools-driver-pg",          // SQLTools Postgres driver
+
+    // ─── General DX ───────────────────────────────────────────────────────────
+    "eamodio.gitlens",                  // GitLens — git blame, history
+    "usernamehw.errorlens",             // Inline error display
+    "streetsidesoftware.code-spell-checker", // Spell checker
+    "ms-vscode.vscode-json",            // JSON language support with schemas
+    "redhat.vscode-yaml",               // YAML language support
+    "bierner.markdown-mermaid"          // Mermaid diagrams preview in markdown
+  ]
+}

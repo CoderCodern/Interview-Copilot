@@ -18,13 +18,15 @@ public sealed record ResumeDetail(
 public sealed class GetResumeHandler(IResumeRepository repository, ICurrentUser currentUser)
     : IQueryHandler<GetResumeQuery, ResumeDetail>
 {
-    public async Task<Result<ResumeDetail>> Handle(GetResumeQuery query, CancellationToken ct)
+    public async Task<Result<ResumeDetail>> Handle(GetResumeQuery query, CancellationToken cancellationToken)
     {
-        var resume = await repository.GetByIdAsync(new ResumeId(query.ResumeId), ct);
+        var resume = await repository.GetByIdAsync(new ResumeId(query.ResumeId), cancellationToken);
 
         // Ownership check is also enforced by the EF global query filter (defense in depth, Doc 10 §3).
         if (resume is null || resume.OwnerId != currentUser.Id)
+        {
             return Error.NotFound("Resume");
+        }
 
         return new ResumeDetail(
             resume.Id.Value,

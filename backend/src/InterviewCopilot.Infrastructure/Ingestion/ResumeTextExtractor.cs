@@ -10,7 +10,7 @@ namespace InterviewCopilot.Infrastructure.Ingestion;
 /// </summary>
 public sealed class ResumeTextExtractor(IBlobStore blobStore) : IResumeTextExtractor
 {
-    public async Task<string> ExtractAsync(AnalysisSource source, CancellationToken ct = default)
+    public async Task<string> ExtractAsync(AnalysisSource source, CancellationToken cancellationToken = default)
     {
         switch (source.Type)
         {
@@ -20,17 +20,15 @@ public sealed class ResumeTextExtractor(IBlobStore blobStore) : IResumeTextExtra
             case SourceType.Pdf:
             case SourceType.Docx:
             case SourceType.Image:
-                await using (var stream = await blobStore.OpenReadAsync(source.Blob!, ct))
+                await using (var stream = await blobStore.OpenReadAsync(source.Blob!, cancellationToken))
                 {
-                    // TODO: PDF/DOCX text extraction; image OCR or vision-model passthrough.
-                    return await ReadPlaceholderAsync(stream, ct);
+                    // Scaffold: add PDF/DOCX text extraction and image OCR/vision-model passthrough here.
+                    _ = stream;
+                    return string.Empty;
                 }
 
             default:
                 throw new NotSupportedException($"Unsupported resume source: {source.Type}");
         }
     }
-
-    private static Task<string> ReadPlaceholderAsync(Stream _, CancellationToken __) =>
-        Task.FromResult(string.Empty); // scaffold
 }

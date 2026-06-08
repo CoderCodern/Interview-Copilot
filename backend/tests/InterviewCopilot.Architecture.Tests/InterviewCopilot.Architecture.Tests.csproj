@@ -2,6 +2,8 @@
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <!-- CA1707: underscore-separated names are idiomatic in xUnit test methods -->
+    <NoWarn>$(NoWarn);CA1707</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,5 +18,7 @@
     <PackageReference Include="xunit.runner.visualstudio" />
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="NetArchTest.Rules" />
+    <!-- Pin to patched version; fixes GHSA-37gx-xxp4-5rgx / GHSA-w3x6-4m5h-cxqf brought in by NetArchTest.Rules -->
+    <PackageReference Include="System.Security.Cryptography.Xml" />
   </ItemGroup>
 </Project>

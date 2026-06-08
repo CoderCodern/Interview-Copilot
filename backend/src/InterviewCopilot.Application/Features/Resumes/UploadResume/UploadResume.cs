@@ -38,7 +38,7 @@ public sealed class UploadResumeValidator : AbstractValidator<UploadResumeComman
 public sealed class UploadResumeHandler(IResumeRepository repository, ICurrentUser currentUser)
     : ICommandHandler<UploadResumeCommand, ResumeResponse>
 {
-    public async Task<Result<ResumeResponse>> Handle(UploadResumeCommand cmd, CancellationToken ct)
+    public async Task<Result<ResumeResponse>> Handle(UploadResumeCommand cmd, CancellationToken cancellationToken)
     {
         Result<AnalysisSource> source = cmd.SourceType switch
         {
@@ -48,7 +48,10 @@ public sealed class UploadResumeHandler(IResumeRepository repository, ICurrentUs
             _ => Error.Validation("resume.unsupported_source", "Unsupported source type for resume.")
         };
 
-        if (source.IsFailure) return source.Error;
+        if (source.IsFailure)
+        {
+            return source.Error;
+        }
 
         var resume = Resume.Upload(currentUser.Id, source.Value);
         repository.Add(resume);

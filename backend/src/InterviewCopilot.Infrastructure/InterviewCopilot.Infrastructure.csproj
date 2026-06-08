@@ -14,11 +14,13 @@
     <PackageReference Include="Pgvector.EntityFrameworkCore" />
     <PackageReference Include="OpenAI" />
     <PackageReference Include="Anthropic.SDK" />
-    <PackageReference Include="Google.GenerativeAI" />
+    <PackageReference Include="Mscc.GenerativeAI" />
     <PackageReference Include="AWSSDK.S3" />
     <PackageReference Include="AWSSDK.SQS" />
     <PackageReference Include="AWSSDK.SecretsManager" />
     <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
     <PackageReference Include="Polly.Core" />
+    <!-- Pin to patched version; fixes GHSA-37gx-xxp4-5rgx / GHSA-w3x6-4m5h-cxqf (transitive) -->
+    <PackageReference Include="System.Security.Cryptography.Xml" />
   </ItemGroup>
 </Project>

@@ -6,11 +6,9 @@ namespace InterviewCopilot.Infrastructure.Ai;
 /// provider just executes the call against a concrete model (Doc 07 §1).</summary>
 public interface IChatProvider
 {
-    AiProvider Provider { get; }
-
-    Task<ProviderCompletion> CompleteAsync(string model, ChatRequest request, CancellationToken ct);
-
-    IAsyncEnumerable<ChatChunk> StreamAsync(string model, ChatRequest request, CancellationToken ct);
+    public AiProvider Provider { get; }
+    public Task<ProviderCompletion> CompleteAsync(string model, ChatRequest request, CancellationToken cancellationToken);
+    public IAsyncEnumerable<ChatChunk> StreamAsync(string model, ChatRequest request, CancellationToken cancellationToken);
 }
 
 public sealed record ProviderCompletion(string Content, int PromptTokens, int CompletionTokens, bool Cached);

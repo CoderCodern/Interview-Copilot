@@ -15,7 +15,7 @@ namespace InterviewCopilot.Application.Features.Resumes.AnalyzeResume;
 /// </summary>
 public sealed record AnalyzeResumeCommand(Guid ResumeId) : ICommand, ITransactional;
 
-public sealed class AnalyzeResumeHandler(
+public sealed partial class AnalyzeResumeHandler(
     IResumeRepository repository,
     IResumeTextExtractor extractor,
     IChatCompletionService ai,
@@ -23,17 +23,23 @@ public sealed class AnalyzeResumeHandler(
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
-    public async Task<Result> Handle(AnalyzeResumeCommand cmd, CancellationToken ct)
+    public async Task<Result> Handle(AnalyzeResumeCommand cmd, CancellationToken cancellationToken)
     {
-        var resume = await repository.GetByIdAsync(new ResumeId(cmd.ResumeId), ct);
-        if (resume is null) return Error.NotFound("Resume");
+        var resume = await repository.GetByIdAsync(new ResumeId(cmd.ResumeId), cancellationToken);
+        if (resume is null)
+        {
+            return Error.NotFound("Resume");
+        }
 
         var start = resume.StartProcessing();
-        if (start.IsFailure) return start; // idempotent: already processed/failed
+        if (start.IsFailure)
+        {
+            return start; // idempotent: already processed/failed
+        }
 
         try
         {
-            var text = await extractor.ExtractAsync(resume.Source, ct);
+            var text = await extractor.ExtractAsync(resume.Source, cancellationToken);
 
             var request = new ChatRequest(
                 Task: AiTask.ResumeParse,
@@ -46,7 +52,7 @@ public sealed class AnalyzeResumeHandler(
                 MinQuality: QualityTier.Economy,
                 MaxOutputTokens: 4000);
 
-            var result = await ai.CompleteAsync(request, ct);
+            var result = await ai.CompleteAsync(request, cancellationToken);
 
             var profile = JsonSerializer.Deserialize<ResumeProfile>(result.Content, JsonOptions)
                 ?? throw new JsonException("Empty profile.");
@@ -55,19 +61,25 @@ public sealed class AnalyzeResumeHandler(
         }
         catch (Exception ex) when (ex is JsonException or InvalidOperationException)
         {
-            logger.LogWarning(ex, "Resume {ResumeId} parse produced invalid output", cmd.ResumeId);
+            LogInvalidOutput(logger, cmd.ResumeId, ex);
             return resume.Fail("AI returned an unparseable profile.");
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Resume {ResumeId} parsing failed", cmd.ResumeId);
+            LogParsingFailed(logger, cmd.ResumeId, ex);
             return resume.Fail(ex.Message);
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Resume {ResumeId} parse produced invalid output")]
+    private static partial void LogInvalidOutput(ILogger logger, Guid resumeId, Exception ex);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Resume {ResumeId} parsing failed")]
+    private static partial void LogParsingFailed(ILogger logger, Guid resumeId, Exception ex);
 }
 
 /// <summary>Port for turning a source (file/text) into clean plain text (impl in Infrastructure/Ingestion).</summary>
 public interface IResumeTextExtractor
 {
-    Task<string> ExtractAsync(AnalysisSource source, CancellationToken ct = default);
+    public Task<string> ExtractAsync(AnalysisSource source, CancellationToken cancellationToken = default);
 }
