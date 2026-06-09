@@ -11,33 +11,44 @@ const steps = [
 export default function DashboardPage() {
   return (
     <section>
-      <p className="text-sm font-medium uppercase tracking-[0.12em] text-primary">Getting started</p>
-      <h1 className="mt-2 text-3xl tracking-tight">Welcome back</h1>
-      <p className="mt-2 text-muted-foreground">Four steps to walk in prepared.</p>
+      <p className="text-[13px] uppercase tracking-[0.14em] text-muted-foreground">Getting started</p>
+      <h1 className="mt-2 text-[clamp(30px,5vw,44px)] leading-[1.05] tracking-tight">Welcome back</h1>
+      <p className="mt-3 max-w-lg text-[17px] text-muted-foreground">Four steps to walk in prepared.</p>
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-2">
+      <div className="mt-10 grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2">
         {steps.map(({ href, title, desc, icon: Icon }, i) => (
           <Link
             key={href}
             href={href}
-            className="group relative rounded-2xl border border-border bg-surface p-6 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_4px_24px_rgba(0,0,0,0.05)]"
+            className="group flex flex-col bg-background p-6 transition-colors hover:bg-surface-muted sm:p-7"
           >
             <div className="flex items-start justify-between">
-              <span className="flex size-10 items-center justify-center rounded-xl bg-surface-muted text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                <Icon className="size-5" />
-              </span>
-              <span className="text-xs font-medium tabular-nums text-muted-foreground">
-                {String(i + 1).padStart(2, "0")}
-              </span>
+              <Icon className="size-6" strokeWidth={1.5} />
+              <span className="text-[13px] tabular-nums text-muted-foreground">{String(i + 1).padStart(2, "0")}</span>
             </div>
-            <h2 className="mt-4 text-xl">{title}</h2>
-            <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{desc}</p>
-            <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
+            <h2 className="mt-6 text-[21px]">{title}</h2>
+            <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">{desc}</p>
+            <span className="mt-5 inline-flex items-center gap-1 text-[14px] opacity-0 transition-opacity group-hover:opacity-100">
               Open
-              <ArrowUpRight className="size-4" />
+              <ArrowUpRight className="size-4" strokeWidth={1.5} />
             </span>
           </Link>
         ))}
+      </div>
+
+      <div className="mt-8 flex flex-wrap gap-y-1">
+        <Link
+          href="/mock"
+          className="mx-[0.2em] mb-[0.4em] inline-flex items-center justify-center whitespace-nowrap rounded-full border border-foreground bg-foreground px-5 py-[0.4em] text-[15px] text-background transition-colors duration-200 hover:bg-background hover:text-foreground"
+        >
+          Start a mock interview
+        </Link>
+        <Link
+          href="/preparations"
+          className="mx-[0.2em] mb-[0.4em] inline-flex items-center justify-center whitespace-nowrap rounded-full border border-black/10 bg-background px-5 py-[0.4em] text-[15px] transition-colors duration-200 hover:bg-foreground hover:text-background"
+        >
+          View prep plans
+        </Link>
       </div>
     </section>
   );
