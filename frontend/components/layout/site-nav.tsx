@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { ThemeToggle } from "@/components/shared/theme-toggle";
 
 type NavLeaf = { label: string; href: string };
 type NavItem = NavLeaf | { label: string; children: NavLeaf[] };
@@ -22,7 +23,7 @@ const navItems: NavItem[] = [
 ];
 
 interface SiteNavProps {
-  /** "overlay" sits transparently over the landing video; "solid" is white with a hairline border. */
+  /** "overlay" sits transparently over the landing video; "solid" is the warm app navbar. */
   variant?: "overlay" | "solid";
   cta?: NavLeaf;
 }
@@ -45,27 +46,39 @@ export function SiteNav({ variant = "solid", cta = { label: "Get started", href:
   return (
     <>
       <nav
-        className={`fixed inset-x-0 top-0 z-10 flex items-center justify-between px-5 py-4 text-foreground sm:px-8 sm:py-5 ${
-          variant === "solid" ? "border-b border-border bg-background" : "bg-transparent"
+        className={`fixed inset-x-0 top-0 z-10 flex items-center justify-between px-5 py-3.5 text-foreground sm:px-8 ${
+          variant === "solid" ? "border-b border-border bg-background/90 backdrop-blur-sm" : "bg-transparent"
         }`}
       >
-        <Link href="/" className="flex items-center gap-3" onClick={closeAll}>
-          <span className="text-[21px] tracking-tight sm:text-[26px]" style={{ fontFamily: "var(--font-heading)" }}>
-            Interview&nbsp;Copilot®
+        <Link href="/" className="flex items-center gap-2.5" onClick={closeAll}>
+          <span
+            className="grid size-8 place-items-center rounded-[9px] text-[17px] italic text-primary-foreground shadow-sm"
+            style={{
+              fontFamily: "var(--font-heading)",
+              background: "linear-gradient(160deg, var(--accent), var(--accent-deep))",
+            }}
+            aria-hidden="true"
+          >
+            ic
           </span>
-          <span className="select-none text-[25px] sm:text-[30px]" style={{ letterSpacing: "-0.02em" }} aria-hidden="true">
-            ✳︎
+          <span
+            className="text-[19px] font-semibold tracking-[-0.01em]"
+            style={{ fontFamily: "var(--font-heading)" }}
+          >
+            Interview&nbsp;Copilot
           </span>
         </Link>
 
-        <div className="hidden items-center gap-7 text-[18px] md:flex lg:text-[20px]">
+        <div className="hidden items-center gap-1 text-[13.5px] md:flex">
           {navItems.map((item) =>
             isLeaf(item) ? (
               <Link
                 key={item.label}
                 href={item.href}
-                className={`transition-opacity hover:opacity-60 ${
-                  isActive(item.href) ? "underline underline-offset-[6px]" : ""
+                className={`rounded-lg px-3 py-1.5 transition-colors ${
+                  isActive(item.href)
+                    ? "bg-accent-soft font-medium text-accent"
+                    : "text-muted-foreground hover:bg-hover hover:text-foreground"
                 }`}
               >
                 {item.label}
@@ -80,14 +93,14 @@ export function SiteNav({ variant = "solid", cta = { label: "Get started", href:
                 <button
                   type="button"
                   onClick={() => setPrepareOpen((o) => !o)}
-                  className="inline-flex items-center gap-1.5 transition-opacity hover:opacity-60"
+                  className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-muted-foreground transition-colors hover:bg-hover hover:text-foreground"
                   aria-expanded={prepareOpen}
                   aria-haspopup="true"
                 >
                   {item.label}
                   <svg
-                    width="12"
-                    height="12"
+                    width="11"
+                    height="11"
                     viewBox="0 0 12 12"
                     className={`transition-transform duration-200 ${prepareOpen ? "rotate-180" : ""}`}
                     fill="none"
@@ -99,18 +112,23 @@ export function SiteNav({ variant = "solid", cta = { label: "Get started", href:
                   </svg>
                 </button>
                 <div
-                  className={`absolute left-0 top-full min-w-52 pt-3 transition-opacity duration-150 ${
+                  className={`absolute left-0 top-full min-w-52 pt-2 transition-opacity duration-150 ${
                     prepareOpen ? "opacity-100" : "pointer-events-none opacity-0"
                   }`}
                 >
-                  <div className="overflow-hidden rounded-lg border border-border bg-background">
+                  <div
+                    className="overflow-hidden rounded-xl border border-border bg-surface-raised p-1.5"
+                    style={{ boxShadow: "var(--shadow-md)" }}
+                  >
                     {item.children.map((child) => (
                       <Link
                         key={child.href}
                         href={child.href}
                         onClick={closeAll}
-                        className={`block px-4 py-2.5 text-[15px] transition-colors hover:bg-surface-muted ${
-                          isActive(child.href) ? "bg-surface-muted" : ""
+                        className={`relative block rounded-lg px-3 py-2 text-[13.5px] transition-colors ${
+                          isActive(child.href)
+                            ? "bg-accent-soft font-medium text-accent"
+                            : "text-muted-foreground hover:bg-hover hover:text-foreground"
                         }`}
                       >
                         {child.label}
@@ -123,12 +141,16 @@ export function SiteNav({ variant = "solid", cta = { label: "Get started", href:
           )}
         </div>
 
-        <Link
-          href={cta.href}
-          className="hidden text-[18px] underline underline-offset-2 transition-opacity hover:opacity-60 md:inline lg:text-[20px]"
-        >
-          {cta.label}
-        </Link>
+        <div className="hidden items-center gap-3 md:flex">
+          <ThemeToggle />
+          <Link
+            href={cta.href}
+            className="inline-flex items-center rounded-[9px] px-4 py-1.5 text-[13.5px] font-medium text-primary-foreground shadow-sm transition-all duration-150 hover:-translate-y-px hover:shadow-md active:translate-y-0"
+            style={{ background: "linear-gradient(180deg, var(--accent), var(--accent-deep))" }}
+          >
+            {cta.label}
+          </Link>
+        </div>
 
         <button
           type="button"
@@ -156,18 +178,20 @@ export function SiteNav({ variant = "solid", cta = { label: "Get started", href:
               href={item.href}
               onClick={closeAll}
               className="text-[32px] font-medium text-foreground"
+              style={{ fontFamily: "var(--font-heading)" }}
             >
               {item.label}
             </Link>
           ) : (
             <div key={item.label} className="flex flex-col gap-3">
-              <span className="text-[15px] uppercase tracking-[0.14em] text-muted-foreground">{item.label}</span>
+              <span className="text-[12px] font-semibold uppercase tracking-[0.1em] text-accent">{item.label}</span>
               {item.children.map((child) => (
                 <Link
                   key={child.href}
                   href={child.href}
                   onClick={closeAll}
                   className="text-[26px] font-medium text-foreground"
+                  style={{ fontFamily: "var(--font-heading)" }}
                 >
                   {child.label}
                 </Link>
@@ -175,7 +199,12 @@ export function SiteNav({ variant = "solid", cta = { label: "Get started", href:
             </div>
           ),
         )}
-        <Link href={cta.href} onClick={closeAll} className="text-[32px] font-medium text-foreground underline">
+        <Link
+          href={cta.href}
+          onClick={closeAll}
+          className="text-[32px] font-medium italic text-accent"
+          style={{ fontFamily: "var(--font-heading)" }}
+        >
           {cta.label}
         </Link>
       </div>

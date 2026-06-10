@@ -1,9 +1,17 @@
 import type { Metadata } from "next";
-import { Geist_Mono } from "next/font/google";
+import { Geist_Mono, Inter, Newsreader } from "next/font/google";
 import { Providers } from "@/components/providers";
 import "./globals.css";
 
-// Mono retained for code/tokens; body + headings use Helvetica Now (loaded via <link> below).
+// Folio type pairing (DESIGN.md §4): Newsreader (serif, editorial) for headings
+// and display numbers; Inter for body and UI; Geist Mono for code/tokens.
+const newsreader = Newsreader({
+  variable: "--font-newsreader",
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  weight: ["400", "500", "600"],
+});
+const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -15,17 +23,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Helvetica Now Display — heading (Medium) + body (Regular). DESIGN.md §4. */}
-        <link
-          rel="stylesheet"
-          href="https://db.onlinewebfonts.com/c/5ac3fe7c6abd2f62067f266d89671492?family=HelveticaNowDisplay-Medium"
-        />
-        <link
-          rel="stylesheet"
-          href="https://db.onlinewebfonts.com/c/1aa3377e489837a26d019bba501e779d?family=HelveticaNowDisplayW01-Rg"
+        {/* Prevent flash of light theme when user has dark mode saved (runs before paint). */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{const s=localStorage.getItem('ic-theme');if(s&&JSON.parse(s).state?.theme==='dark')document.documentElement.classList.add('dark')}catch(e){}`,
+          }}
         />
       </head>
-      <body className={geistMono.variable}>
+      <body className={`${newsreader.variable} ${inter.variable} ${geistMono.variable}`}>
         <Providers>{children}</Providers>
       </body>
     </html>
