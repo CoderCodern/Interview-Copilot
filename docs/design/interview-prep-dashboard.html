@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Folio — Interview Preparation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Inter:wght@400;450;500;550;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   FOLIO — A premium interview preparation notebook
+   Design system: warm editorial, paper-like, calm
+   ============================================================ */
+
+:root {
+  --bg: #FAF9F6;
+  --surface: #FDFCF9;
+  --surface-raised: #FFFFFE;
+  --hover: #F6F2ED;
+  --border: #E6E0D8;
+  --border-strong: #D8D0C4;
+  --text: #171717;
+  --text-2: #6F6A64;
+  --text-3: #99928A;
+  --accent: #8C7B68;
+  --accent-deep: #6E5F4F;
+  --accent-soft: rgba(140, 123, 104, 0.10);
+  --accent-softer: rgba(140, 123, 104, 0.06);
+  --accent-ring: rgba(140, 123, 104, 0.28);
+  --track: #ECE7DF;
+  --shadow-color: 56, 46, 36;
+  --shadow-xs: 0 1px 2px rgba(var(--shadow-color), 0.04);
+  --shadow-sm: 0 1px 2px rgba(var(--shadow-color), 0.05), 0 2px 6px rgba(var(--shadow-color), 0.04);
+  --shadow-md: 0 1px 2px rgba(var(--shadow-color), 0.05), 0 4px 12px rgba(var(--shadow-color), 0.06), 0 12px 28px rgba(var(--shadow-color), 0.05);
+  --shadow-lg: 0 2px 4px rgba(var(--shadow-color), 0.05), 0 8px 20px rgba(var(--shadow-color), 0.07), 0 20px 44px rgba(var(--shadow-color), 0.07);
+  --inset-line: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  --serif: 'Newsreader', 'Iowan Old Style', Georgia, serif;
+  --sans: 'Inter', -apple-system, 'Segoe UI', sans-serif;
+}
+
+[data-theme="dark"] {
+  --bg: #3D3732;
+  --surface: #4A443E;
+  --surface-raised: #514B44;
+  --hover: #565049;
+  --border: #655E57;
+  --border-strong: #756D64;
+  --text: #F5F1EB;
+  --text-2: #C4BCB2;
+  --text-3: #968E84;
+  --accent: #A38D75;
+  --accent-deep: #BCA68C;
+  --accent-soft: rgba(163, 141, 117, 0.16);
+  --accent-softer: rgba(163, 141, 117, 0.09);
+  --accent-ring: rgba(163, 141, 117, 0.40);
+  --track: #36312C;
+  --shadow-color: 18, 14, 10;
+  --inset-line: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  transition: background 0.35s ease, color 0.35s ease;
+}
+
+/* Paper grain — barely-there texture so the page never feels flat */
+body::before {
+  content: "";
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 0;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.4 0 0 0 0 0.35 0 0 0 0 0.28 0 0 0 0.02 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.app { display: flex; min-height: 100vh; position: relative; z-index: 1; }
+
+/* ============ SIDEBAR ============ */
+.sidebar {
+  width: 248px; flex-shrink: 0;
+  padding: 28px 16px 20px;
+  display: flex; flex-direction: column;
+  border-right: 1px solid var(--border);
+  position: sticky; top: 0; height: 100vh;
+}
+
+.brand {
+  display: flex; align-items: center; gap: 12px;
+  padding: 0 12px; margin-bottom: 32px;
+}
+.brand-mark {
+  width: 34px; height: 34px; border-radius: 9px;
+  background: linear-gradient(160deg, var(--accent), var(--accent-deep));
+  color: #FDFCF9;
+  display: grid; place-items: center;
+  font-family: var(--serif); font-size: 19px; font-weight: 500; font-style: italic;
+  box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,0.25);
+}
+.brand-name {
+  font-family: var(--serif); font-size: 19px; font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.brand-sub { font-size: 11px; color: var(--text-3); letter-spacing: 0.04em; text-transform: uppercase; margin-top: -2px; }
+
+.nav-label {
+  font-size: 10.5px; font-weight: 600; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--text-3);
+  padding: 0 12px; margin: 22px 0 8px;
+}
+
+.nav-item {
+  display: flex; align-items: center; gap: 11px;
+  padding: 8px 12px; border-radius: 8px;
+  color: var(--text-2); font-weight: 450; font-size: 13.5px;
+  cursor: pointer; position: relative;
+  border: 1px solid transparent;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  user-select: none;
+}
+.nav-item svg { width: 16px; height: 16px; stroke: currentColor; flex-shrink: 0; opacity: 0.8; }
+.nav-item:hover { background: var(--hover); color: var(--text); }
+.nav-item:hover svg { opacity: 1; }
+.nav-item:active { transform: scale(0.985); }
+.nav-item.active {
+  background: var(--surface-raised);
+  color: var(--text); font-weight: 550;
+  border-color: var(--border);
+  box-shadow: var(--shadow-xs);
+}
+.nav-item.active::before {
+  content: ""; position: absolute; left: -17px; top: 7px; bottom: 7px;
+  width: 3px; border-radius: 0 3px 3px 0;
+  background: var(--accent);
+}
+.nav-item.active svg { stroke: var(--accent); opacity: 1; }
+
+.nav-count {
+  margin-left: auto; font-size: 11px; font-weight: 500;
+  color: var(--text-3);
+  background: var(--accent-softer);
+  border: 1px solid var(--border);
+  padding: 1px 7px; border-radius: 99px;
+}
+.nav-item.active .nav-count { color: var(--accent); border-color: transparent; background: var(--accent-soft); }
+
+/* Sidebar footer: plan progress + theme toggle */
+.sidebar-foot { margin-top: auto; }
+.plan-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px;
+  box-shadow: var(--shadow-xs), var(--inset-line);
+  margin-bottom: 14px;
+}
+.plan-card .plan-title { font-size: 12.5px; font-weight: 550; }
+.plan-card .plan-meta { font-size: 11.5px; color: var(--text-2); margin: 2px 0 10px; }
+.meter { height: 5px; border-radius: 99px; background: var(--track); overflow: hidden; }
+.meter > i {
+  display: block; height: 100%; border-radius: 99px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-deep));
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.plan-pct { font-size: 11px; color: var(--accent); font-weight: 600; margin-top: 8px; }
+
+.theme-toggle {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px; border-radius: 8px;
+  font-size: 13px; color: var(--text-2); cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.theme-toggle:hover { background: var(--hover); color: var(--text); }
+.switch {
+  width: 34px; height: 19px; border-radius: 99px;
+  background: var(--track); border: 1px solid var(--border-strong);
+  position: relative; transition: background 0.25s ease;
+}
+.switch::after {
+  content: ""; position: absolute; top: 1.5px; left: 2px;
+  width: 13px; height: 13px; border-radius: 50%;
+  background: var(--surface-raised);
+  box-shadow: 0 1px 2px rgba(var(--shadow-color), 0.25);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+[data-theme="dark"] .switch { background: var(--accent); border-color: var(--accent); }
+[data-theme="dark"] .switch::after { transform: translateX(14px); }
+
+/* ============ MAIN ============ */
+.main { flex: 1; min-width: 0; padding: 36px 44px 64px; max-width: 1120px; margin: 0 auto; }
+
+.topbar { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 30px; }
+.eyebrow {
+  font-size: 11.5px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 6px;
+}
+h1 {
+  font-family: var(--serif); font-size: 32px; font-weight: 500;
+  letter-spacing: -0.015em; line-height: 1.15;
+}
+h1 em { font-style: italic; color: var(--accent-deep); }
+.topbar-sub { color: var(--text-2); margin-top: 6px; font-size: 14px; }
+
+.streak-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 99px; padding: 8px 16px;
+  box-shadow: var(--shadow-xs), var(--inset-line);
+  font-size: 13px; font-weight: 550;
+}
+.streak-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+.streak-chip span { color: var(--text-2); font-weight: 450; }
+
+/* ============ FOCAL HERO ============ */
+.hero {
+  display: grid; grid-template-columns: 1fr 280px; gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 14px;
+}
+.hero-left {
+  background: linear-gradient(170deg, var(--surface-raised), var(--surface));
+  padding: 28px 32px;
+  position: relative;
+  box-shadow: var(--inset-line);
+}
+.hero-left::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(420px 200px at 12% 0%, var(--accent-softer), transparent 70%);
+}
+.hero-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-ring);
+  padding: 4px 11px; border-radius: 99px; margin-bottom: 16px;
+}
+.hero h2 {
+  font-family: var(--serif); font-size: 25px; font-weight: 500;
+  letter-spacing: -0.01em; line-height: 1.25; max-width: 27ch;
+}
+.hero p.lede { color: var(--text-2); margin: 10px 0 22px; max-width: 52ch; font-size: 14px; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--sans); font-size: 13.5px; font-weight: 550;
+  padding: 9px 18px; border-radius: 9px; cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+.btn:active { transform: translateY(1px) scale(0.99); }
+.btn-primary {
+  background: linear-gradient(180deg, var(--accent), var(--accent-deep));
+  color: #FBFAF7;
+  box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+.btn-primary:hover { box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255,255,255,0.2); transform: translateY(-1px); }
+.btn-ghost {
+  background: transparent; color: var(--text-2);
+  border-color: var(--border-strong);
+}
+.btn-ghost:hover { background: var(--hover); color: var(--text); }
+
+.hero-right {
+  background: var(--surface);
+  padding: 24px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+}
+.ring-wrap { position: relative; width: 130px; height: 130px; }
+.ring-wrap svg { transform: rotate(-90deg); }
+.ring-track { stroke: var(--track); }
+.ring-fill {
+  stroke: var(--accent);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ring-center {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.ring-center b { font-family: var(--serif); font-size: 30px; font-weight: 500; letter-spacing: -0.02em; }
+.ring-center span { font-size: 10.5px; color: var(--text-3); letter-spacing: 0.07em; text-transform: uppercase; margin-top: 1px; }
+.ring-caption { font-size: 12.5px; color: var(--text-2); text-align: center; }
+.ring-caption b { color: var(--text); font-weight: 550; }
+
+/* ============ STAT STRIP ============ */
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 34px; }
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 13px; padding: 16px 18px;
+  box-shadow: var(--shadow-xs), var(--inset-line);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+.stat:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm), var(--inset-line); border-color: var(--border-strong); }
+.stat-label { font-size: 11.5px; color: var(--text-3); font-weight: 500; letter-spacing: 0.03em; }
+.stat-value { font-family: var(--serif); font-size: 26px; font-weight: 500; letter-spacing: -0.02em; margin: 4px 0 2px; }
+.stat-value small { font-size: 14px; color: var(--text-3); font-family: var(--sans); font-weight: 450; }
+.stat-delta { font-size: 11.5px; color: var(--accent); font-weight: 550; }
+.stat-delta.muted { color: var(--text-3); font-weight: 450; }
+
+/* ============ SECTION HEADERS ============ */
+.section-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin: 0 0 16px;
+}
+.section-head h3 {
+  font-family: var(--serif); font-size: 19px; font-weight: 500; letter-spacing: -0.01em;
+}
+.section-head a {
+  font-size: 12.5px; color: var(--text-2); text-decoration: none; font-weight: 500;
+  border-bottom: 1px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.section-head a:hover { color: var(--accent); border-color: var(--accent-ring); }
+
+/* ============ TOPIC CARDS ============ */
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 38px; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: var(--shadow-sm), var(--inset-line);
+  cursor: pointer; position: relative;
+  display: flex; flex-direction: column;
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.card:hover {
+  transform: translateY(-3px);
+  background: var(--surface-raised);
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-md), var(--inset-line);
+}
+.card:active { transform: translateY(-1px); box-shadow: var(--shadow-sm), var(--inset-line); }
+
+.card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.card-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-ring);
+  display: grid; place-items: center;
+  transition: background 0.2s ease;
+}
+.card-icon svg { width: 17px; height: 17px; stroke: var(--accent); }
+.card:hover .card-icon { background: var(--accent-soft); box-shadow: 0 0 0 4px var(--accent-softer); }
+
+.badge {
+  font-size: 10.5px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 99px;
+  border: 1px solid var(--border);
+  color: var(--text-3); background: transparent;
+}
+.badge.done { color: var(--accent); border-color: var(--accent-ring); background: var(--accent-softer); }
+
+.card h4 { font-family: var(--serif); font-size: 17.5px; font-weight: 550; letter-spacing: -0.005em; }
+.card .card-desc { font-size: 12.5px; color: var(--text-2); margin: 5px 0 18px; line-height: 1.55; flex: 1; }
+
+.card-progress { display: flex; align-items: center; gap: 10px; }
+.card-progress .meter { flex: 1; }
+.card-progress .pct { font-size: 12px; font-weight: 600; color: var(--text-2); min-width: 50px; text-align: right; font-variant-numeric: tabular-nums; }
+
+.card-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 14px; padding-top: 13px;
+  border-top: 1px solid var(--border);
+  font-size: 12px; color: var(--text-3);
+}
+.card-cta {
+  display: inline-flex; align-items: center; gap: 4px;
+  color: var(--accent); font-weight: 550;
+  opacity: 0; transform: translateX(-4px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.card:hover .card-cta { opacity: 1; transform: translateX(0); }
+
+/* ============ TWO-COLUMN: SESSIONS + NOTES ============ */
+.cols { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-sm), var(--inset-line);
+  overflow: hidden;
+}
+.panel-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.panel-head h3 { font-family: var(--serif); font-size: 17px; font-weight: 550; }
+.panel-head .hint { font-size: 11.5px; color: var(--text-3); }
+
+.session {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.15s ease;
+  position: relative;
+}
+.session:last-child { border-bottom: none; }
+.session:hover { background: var(--hover); }
+.session:hover .session-go { opacity: 1; transform: translateX(0); }
+.session.now::before {
+  content: ""; position: absolute; left: 0; top: 10px; bottom: 10px;
+  width: 3px; border-radius: 0 3px 3px 0; background: var(--accent);
+}
+
+.session-date {
+  width: 46px; flex-shrink: 0; text-align: center;
+  background: var(--accent-softer);
+  border: 1px solid var(--border);
+  border-radius: 9px; padding: 5px 0;
+}
+.session-date b { display: block; font-family: var(--serif); font-size: 17px; font-weight: 550; line-height: 1.1; }
+.session-date span { font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); font-weight: 600; }
+
+.session-body { flex: 1; min-width: 0; }
+.session-title { font-size: 13.5px; font-weight: 550; }
+.session-meta { font-size: 12px; color: var(--text-2); margin-top: 1px; }
+.session-meta .live { color: var(--accent); font-weight: 600; }
+
+.session-go {
+  font-size: 12px; color: var(--accent); font-weight: 550;
+  opacity: 0; transform: translateX(-4px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  flex-shrink: 0;
+}
+
+/* Notes */
+.note {
+  padding: 13px 20px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.note:last-child { border-bottom: none; }
+.note:hover { background: var(--hover); }
+.note-title {
+  font-family: var(--serif); font-size: 14.5px; font-weight: 550;
+  display: flex; align-items: center; gap: 8px;
+}
+.note-title .check {
+  width: 15px; height: 15px; border-radius: 50%; flex-shrink: 0;
+  display: grid; place-items: center;
+  background: var(--accent); color: #FBFAF7;
+}
+.note-title .check svg { width: 9px; height: 9px; stroke-width: 3; }
+.note-title .check.open { background: transparent; border: 1.5px solid var(--border-strong); }
+.note-excerpt {
+  font-size: 12px; color: var(--text-2); margin-top: 3px;
+  display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;
+}
+.note-meta { font-size: 11px; color: var(--text-3); margin-top: 5px; }
+
+/* Footer quote — editorial touch */
+.foot-quote {
+  text-align: center; margin-top: 52px;
+  font-family: var(--serif); font-style: italic;
+  color: var(--text-3); font-size: 14px;
+}
+
+/* Focus visibility for keyboard users */
+.nav-item:focus-visible, .card:focus-visible, .session:focus-visible,
+.note:focus-visible, .btn:focus-visible, .theme-toggle:focus-visible {
+  outline: 2px solid var(--accent-ring); outline-offset: 2px;
+}
+
+@media (max-width: 1080px) {
+  .grid { grid-template-columns: 1fr 1fr; }
+  .stats { grid-template-columns: 1fr 1fr; }
+  .cols { grid-template-columns: 1fr; }
+}
+@media (max-width: 800px) {
+  .sidebar { display: none; }
+  .hero { grid-template-columns: 1fr; }
+  .main { padding: 24px 20px 48px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ======== SIDEBAR ======== -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">f</div>
+      <div>
+        <div class="brand-name">Folio</div>
+        <div class="brand-sub">Interview Prep</div>
+      </div>
+    </div>
+
+    <div class="nav-label">Workspace</div>
+    <div class="nav-item active" tabindex="0">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-8 9 8"/><path d="M5 10v9a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1v-9"/></svg>
+      Today
+    </div>
+    <div class="nav-item" tabindex="0">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 9h18"/></svg>
+      Schedule
+      <span class="nav-count">3</span>
+    </div>
+
+    <div class="nav-label">Library</div>
+    <div class="nav-item" tabindex="0">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8a3 3 0 100-6 3 3 0 000 6zM5 22v-5a7 7 0 0114 0v5"/></svg>
+      Behavioral
+      <span class="nav-count">24</span>
+    </div>
+    <div class="nav-item" tabindex="0">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="9" height="8" rx="1.5"/><rect x="13" y="13" width="9" height="8" rx="1.5"/><path d="M6.5 11v3a2 2 0 002 2H13"/></svg>
+      System Design
+      <span class="nav-count">12</span>
+    </div>
+    <div class="nav-item" tabindex="0">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 9l-4 3 4 3M16 9l4 3-4 3M13 5l-2 14"/></svg>
+      Coding Drills
+      <span class="nav-count">48</span>
+    </div>
+    <div class="nav-item" tabindex="0">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h13a3 3 0 013 3v13H7a3 3 0 01-3-3V4z"/><path d="M4 4a3 3 0 013 3v13M12 9h4M12 13h4"/></svg>
+      Notebook
+      <span class="nav-count">31</span>
+    </div>
+
+    <div class="nav-label">Practice</div>
+    <div class="nav-item" tabindex="0">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+      Mock Interviews
+    </div>
+    <div class="nav-item" tabindex="0">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 4 8-8"/><path d="M15 8h5v5"/></svg>
+      Progress
+    </div>
+
+    <div class="sidebar-foot">
+      <div class="plan-card">
+        <div class="plan-title">Stripe loop — 14-day plan</div>
+        <div class="plan-meta">Day 9 of 14 · on track</div>
+        <div class="meter"><i style="width: 64%"></i></div>
+        <div class="plan-pct">64% complete</div>
+      </div>
+      <div class="theme-toggle" id="themeToggle" tabindex="0" role="switch" aria-checked="false" aria-label="Toggle dark theme">
+        <span id="themeLabel">Evening mode</span>
+        <span class="switch"></span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ======== MAIN ======== -->
+  <main class="main">
+
+    <div class="topbar">
+      <div>
+        <div class="eyebrow">Wednesday, June 10</div>
+        <h1>Good morning, <em>Coder</em>.</h1>
+        <div class="topbar-sub">Five days until your on-site. Today is a deep-work day.</div>
+      </div>
+      <div class="streak-chip">
+        <span class="streak-dot"></span>
+        12-day streak&nbsp;<span>· 2h 10m today</span>
+      </div>
+    </div>
+
+    <!-- FOCAL POINT -->
+    <section class="hero">
+      <div class="hero-left">
+        <span class="hero-tag">Today's focus</span>
+        <h2>System design: payment ledgers &amp; idempotent retries</h2>
+        <p class="lede">You marked consistency trade-offs as shaky on Monday. Today's session pairs two ledger design exercises with your annotated notes from the Stripe engineering blog.</p>
+        <button class="btn btn-primary">Resume session
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+        <button class="btn btn-ghost" style="margin-left:10px">Review notes</button>
+      </div>
+      <div class="hero-right">
+        <div class="ring-wrap">
+          <svg width="130" height="130" viewBox="0 0 130 130">
+            <circle class="ring-track" cx="65" cy="65" r="56" fill="none" stroke-width="9"/>
+            <circle class="ring-fill" id="ring" cx="65" cy="65" r="56" fill="none" stroke-width="9"
+              stroke-dasharray="351.86" stroke-dashoffset="351.86"/>
+          </svg>
+          <div class="ring-center">
+            <b>72%</b>
+            <span>Readiness</span>
+          </div>
+        </div>
+        <div class="ring-caption"><b>+6%</b> since last week<br>Strongest: behavioral · Focus: system design</div>
+      </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="stats" style="margin-top:14px">
+      <div class="stat">
+        <div class="stat-label">Questions completed</div>
+        <div class="stat-value">142 <small>/ 210</small></div>
+        <div class="stat-delta">+11 this week</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Study time</div>
+        <div class="stat-value">31<small>h</small> 40<small>m</small></div>
+        <div class="stat-delta">+4h 20m this week</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Mock interviews</div>
+        <div class="stat-value">7 <small>/ 10</small></div>
+        <div class="stat-delta">Next: Thu 4:00 pm</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Avg. mock score</div>
+        <div class="stat-value">8.2 <small>/ 10</small></div>
+        <div class="stat-delta muted">Stable · last 3 sessions</div>
+      </div>
+    </section>
+
+    <!-- TOPICS -->
+    <div class="section-head">
+      <h3>Study tracks</h3>
+      <a href="#">View all tracks →</a>
+    </div>
+    <section class="grid">
+
+      <div class="card" tabindex="0">
+        <div class="card-top">
+          <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="9" height="8" rx="1.5"/><rect x="13" y="13" width="9" height="8" rx="1.5"/><path d="M6.5 11v3a2 2 0 002 2H13"/></svg></div>
+          <span class="badge">In focus</span>
+        </div>
+        <h4>System Design</h4>
+        <p class="card-desc">Ledgers, rate limiters, queues. Two exercises left in the payments module.</p>
+        <div class="card-progress">
+          <div class="meter"><i style="width:58%"></i></div>
+          <span class="pct">7 / 12</span>
+        </div>
+        <div class="card-foot">
+          <span>Last studied today</span>
+          <span class="card-cta">Continue →</span>
+        </div>
+      </div>
+
+      <div class="card" tabindex="0">
+        <div class="card-top">
+          <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 9l-4 3 4 3M16 9l4 3-4 3M13 5l-2 14"/></svg></div>
+          <span class="badge">Steady</span>
+        </div>
+        <h4>Coding Drills</h4>
+        <p class="card-desc">Graphs and dynamic programming this week. Strong run on medium difficulty.</p>
+        <div class="card-progress">
+          <div class="meter"><i style="width:73%"></i></div>
+          <span class="pct">35 / 48</span>
+        </div>
+        <div class="card-foot">
+          <span>Last studied yesterday</span>
+          <span class="card-cta">Continue →</span>
+        </div>
+      </div>
+
+      <div class="card" tabindex="0">
+        <div class="card-top">
+          <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8a3 3 0 100-6 3 3 0 000 6zM5 22v-5a7 7 0 0114 0v5"/></svg></div>
+          <span class="badge done">✓ Strong</span>
+        </div>
+        <h4>Behavioral</h4>
+        <p class="card-desc">All STAR stories drafted and rehearsed. One final pass on the leadership set.</p>
+        <div class="card-progress">
+          <div class="meter"><i style="width:92%"></i></div>
+          <span class="pct">22 / 24</span>
+        </div>
+        <div class="card-foot">
+          <span>Last studied Mon</span>
+          <span class="card-cta">Continue →</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- SESSIONS + NOTES -->
+    <section class="cols">
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Upcoming sessions</h3>
+          <span class="hint">This week</span>
+        </div>
+        <div class="session now" tabindex="0">
+          <div class="session-date"><b>10</b><span>Jun</span></div>
+          <div class="session-body">
+            <div class="session-title">Deep work: payment ledger design</div>
+            <div class="session-meta"><span class="live">In progress</span> · 90 min · System Design track</div>
+          </div>
+          <span class="session-go">Open →</span>
+        </div>
+        <div class="session" tabindex="0">
+          <div class="session-date"><b>11</b><span>Jun</span></div>
+          <div class="session-body">
+            <div class="session-title">Mock interview — system design w/ Priya</div>
+            <div class="session-meta">4:00 pm · 60 min · recorded for review</div>
+          </div>
+          <span class="session-go">Open →</span>
+        </div>
+        <div class="session" tabindex="0">
+          <div class="session-date"><b>12</b><span>Jun</span></div>
+          <div class="session-body">
+            <div class="session-title">Graph drills + spaced repetition review</div>
+            <div class="session-meta">Morning block · 75 min · Coding track</div>
+          </div>
+          <span class="session-go">Open →</span>
+        </div>
+        <div class="session" tabindex="0">
+          <div class="session-date"><b>14</b><span>Jun</span></div>
+          <div class="session-body">
+            <div class="session-title">Final review: STAR stories &amp; questions to ask</div>
+            <div class="session-meta">Evening · 45 min · light session before rest day</div>
+          </div>
+          <span class="session-go">Open →</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Recent notes</h3>
+          <span class="hint">Notebook</span>
+        </div>
+        <div class="note" tabindex="0">
+          <div class="note-title">
+            <span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span>
+            Idempotency keys — retry semantics
+          </div>
+          <div class="note-excerpt">Client-generated keys, server-side dedup window, what happens on partial failure…</div>
+          <div class="note-meta">Reviewed today · System Design</div>
+        </div>
+        <div class="note" tabindex="0">
+          <div class="note-title">
+            <span class="check open"></span>
+            Double-entry ledger invariants
+          </div>
+          <div class="note-excerpt">Debits = credits per transaction. Never mutate, only append. Balance is a derived…</div>
+          <div class="note-meta">Draft · needs examples · System Design</div>
+        </div>
+        <div class="note" tabindex="0">
+          <div class="note-title">
+            <span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span>
+            STAR: migrating the billing service
+          </div>
+          <div class="note-excerpt">Situation: 40k req/min legacy system. Task: zero-downtime cutover. Action…</div>
+          <div class="note-meta">Rehearsed Mon · Behavioral</div>
+        </div>
+        <div class="note" tabindex="0">
+          <div class="note-title">
+            <span class="check open"></span>
+            Questions to ask the hiring manager
+          </div>
+          <div class="note-excerpt">Team charter, on-call rotation, how design reviews work, growth expectations…</div>
+          <div class="note-meta">Draft · Behavioral</div>
+        </div>
+      </div>
+
+    </section>
+
+    <p class="foot-quote">"Slow is smooth, smooth is fast." — keep the streak, not the pace.</p>
+
+  </main>
+</div>
+
+<script>
+// Theme toggle
+const toggle = document.getElementById('themeToggle');
+const label = document.getElementById('themeLabel');
+function setTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  label.textContent = t === 'dark' ? 'Morning mode' : 'Evening mode';
+  toggle.setAttribute('aria-checked', t === 'dark');
+}
+toggle.addEventListener('click', () => {
+  setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+});
+toggle.addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle.click(); }
+});
+
+// Animate readiness ring on load (72%)
+requestAnimationFrame(() => {
+  setTimeout(() => {
+    const ring = document.getElementById('ring');
+    const C = 2 * Math.PI * 56;
+    ring.style.strokeDashoffset = C * (1 - 0.72);
+  }, 150);
+});
+
+// Nav active state
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelector('.nav-item.active')?.classList.remove('active');
+    item.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
