@@ -78,7 +78,7 @@ export function SiteNav({ variant = "solid", cta = { label: "Get started", href:
                 className={`rounded-lg px-3 py-1.5 transition-colors ${
                   isActive(item.href)
                     ? "bg-accent-soft font-medium text-accent"
-                    : "text-muted-foreground hover:bg-hover hover:text-foreground"
+                    : "text-foreground hover:bg-hover"
                 }`}
               >
                 {item.label}
@@ -93,7 +93,7 @@ export function SiteNav({ variant = "solid", cta = { label: "Get started", href:
                 <button
                   type="button"
                   onClick={() => setPrepareOpen((o) => !o)}
-                  className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-muted-foreground transition-colors hover:bg-hover hover:text-foreground"
+                  className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-foreground transition-colors hover:bg-hover"
                   aria-expanded={prepareOpen}
                   aria-haspopup="true"
                 >
@@ -128,7 +128,7 @@ export function SiteNav({ variant = "solid", cta = { label: "Get started", href:
                         className={`relative block rounded-lg px-3 py-2 text-[13.5px] transition-colors ${
                           isActive(child.href)
                             ? "bg-accent-soft font-medium text-accent"
-                            : "text-muted-foreground hover:bg-hover hover:text-foreground"
+                            : "text-foreground hover:bg-hover"
                         }`}
                       >
                         {child.label}

@@ -20,10 +20,12 @@ Candidate resumes and analyses are sensitive PII. Security is designed in layers
 
 ## 2. Identity & authentication
 
-- **Delegated to a managed IdP** (Amazon Cognito or Auth0): email/password + social + optional MFA. The platform never stores passwords.
-- **OAuth2 / OIDC**; the API is a resource server validating **JWT access tokens** against the IdP **JWKS** (cached, rotated).
-- **Short-lived access tokens** (~15 min) + **rotating refresh tokens**; refresh handled server-side where possible (httpOnly cookies for the web session, Bearer for API).
-- `candidates.id` is the IdP `sub` — identity is external, profile is local.
+> **Updated (ADR 0005):** identity is now **first-party** via ASP.NET Identity, replacing the earlier managed-IdP (Cognito/Auth0) assumption. Full design in [17-auth-architecture](17-auth-architecture.md) and [18-auth-implementation-plan](18-auth-implementation-plan.md).
+
+- **Self-hosted ASP.NET Identity** owns users and passwords (Identity v3 PBKDF2 hasher), email-confirmation and password-reset tokens, and lockout. Email/password + Google OAuth; MFA is a roadmap item.
+- **We issue our own JWTs**: the API signs **RS256** access tokens and publishes the public key at `/.well-known/jwks.json`, so validation stays stateless and keys rotate without redeploy.
+- **Short-lived access tokens** (~15 min) + **rotating, revocable refresh tokens** (30 days), stored **hashed** in PostgreSQL with reuse-detection; the web session keeps the refresh token in a `__Host-`, httpOnly, Secure, SameSite=Strict cookie and the access token in memory, while API clients use Bearer.
+- `users.id` (UUID v7, the former `candidates.id`) is the single identity root and the `owner_id` carried by every owned row; `ICurrentUser.Id` resolves from the validated JWT `sub` — the domain and tenant filter are unchanged.
 
 ## 3. Authorization
 

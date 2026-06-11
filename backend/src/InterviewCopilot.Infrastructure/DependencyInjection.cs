@@ -3,10 +3,12 @@ using InterviewCopilot.Application.Abstractions.Ai;
 using InterviewCopilot.Application.Features.Resumes.AnalyzeResume;
 using InterviewCopilot.Infrastructure.Ai;
 using InterviewCopilot.Infrastructure.Ai.Providers;
+using InterviewCopilot.Infrastructure.Identity;
 using InterviewCopilot.Infrastructure.Ingestion;
 using InterviewCopilot.Infrastructure.Persistence;
 using InterviewCopilot.Infrastructure.Persistence.Repositories;
 using InterviewCopilot.Infrastructure.Storage;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +24,38 @@ public static class DependencyInjection
             o.UseNpgsql(config.GetConnectionString("Postgres"), npg => npg.UseVector()));
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AppDbContext>());
         services.AddScoped<IResumeRepository, ResumeRepository>();
+
+        // --- Identity & auth (Doc 17, ADR 0005) ---
+        services.Configure<AuthOptions>(config.GetSection(AuthOptions.SectionName));
+        services.Configure<GoogleOAuthOptions>(config.GetSection(GoogleOAuthOptions.SectionName));
+
+        services.AddIdentityCore<ApplicationUser>(o =>
+            {
+                o.User.RequireUniqueEmail = true;
+                o.SignIn.RequireConfirmedEmail = false; // login allowed; gated actions require EmailVerified policy
+                o.Password.RequiredLength = 10;
+                o.Password.RequireDigit = true;
+                o.Password.RequireUppercase = true;
+                o.Password.RequireLowercase = true;
+                o.Password.RequireNonAlphanumeric = false;
+                o.Lockout.MaxFailedAccessAttempts = 5;
+                o.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+                o.Lockout.AllowedForNewUsers = true;
+            })
+            .AddRoles<ApplicationRole>()
+            .AddEntityFrameworkStores<AppDbContext>()
+            .AddSignInManager()
+            .AddDefaultTokenProviders();
+
+        services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
+        services.AddSingleton<RsaSigningKeyProvider>();
+        services.AddSingleton<IAuthLinkBuilder, AuthLinkBuilder>();
+        services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<IIdentityService, IdentityService>();
+        services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+        services.AddScoped<IUserProfileRepository, UserProfileRepository>();
+        services.AddScoped<IAuthAuditWriter, AuthAuditWriter>();
+        services.AddScoped<IEmailSender, LoggingEmailSender>();
 
         // --- AI subsystem (Doc 07) ---
         services.Configure<AiCatalogOptions>(config.GetSection(AiCatalogOptions.SectionName));

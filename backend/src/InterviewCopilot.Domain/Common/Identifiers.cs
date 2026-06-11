@@ -39,3 +39,31 @@ public readonly record struct MockSessionId(Guid Value)
     public static MockSessionId New() => new(Guid.CreateVersion7());
     public override string ToString() => Value.ToString();
 }
+
+// ---- Auth (Doc 17) ------------------------------------------------------------
+// Note: the authenticated user's identity id IS the tenant key. We reuse
+// CandidateId as the owner id everywhere (ADR 0005): ApplicationUser.Id == CandidateId.Value.
+
+public readonly record struct UserSessionId(Guid Value)
+{
+    public static UserSessionId New() => new(Guid.CreateVersion7());
+    public override string ToString() => Value.ToString();
+}
+
+public readonly record struct RefreshTokenId(Guid Value)
+{
+    public static RefreshTokenId New() => new(Guid.CreateVersion7());
+    public override string ToString() => Value.ToString();
+}
+
+public readonly record struct ExternalLoginId(Guid Value)
+{
+    public static ExternalLoginId New() => new(Guid.CreateVersion7());
+    public override string ToString() => Value.ToString();
+}
+
+public readonly record struct AuthAuditLogId(Guid Value)
+{
+    public static AuthAuditLogId New() => new(Guid.CreateVersion7());
+    public override string ToString() => Value.ToString();
+}

@@ -3,10 +3,13 @@ using InterviewCopilot.Api.Authentication;
 using InterviewCopilot.Api.Endpoints;
 using InterviewCopilot.Application;
 using InterviewCopilot.Application.Abstractions;
+using InterviewCopilot.Domain.Users;
 using InterviewCopilot.Infrastructure;
+using InterviewCopilot.Infrastructure.Identity;
 using InterviewCopilot.Infrastructure.Storage;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -26,42 +29,33 @@ builder.Host.UseSerilog((ctx, cfg) => cfg
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
-// ---- Current user from validated JWT (Doc 10 §3) ----------------------------
+// ---- Current user from validated JWT (Doc 10 §3, Doc 17 §3) -----------------
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+builder.Services.AddScoped<RefreshCookie>();
 
-// ---- AuthN/Z ----------------------------------------------------------------
+// Dev convenience: local disk blob store instead of S3.
 if (builder.Environment.IsDevelopment())
 {
-    // Dev bypass: every request is auto-authenticated as a fixed candidate.
-    // ICurrentUser is also overridden so EF tenant-scoped filters work.
-    builder.Services.AddAuthentication("Dev")
-        .AddScheme<AuthenticationSchemeOptions, DevAuthHandler>("Dev", _ => { });
-    builder.Services.AddScoped<ICurrentUser, DevCurrentUser>();
-
-    // Dev blob store: local disk instead of S3.
     builder.Services.AddScoped<IBlobStore, LocalDiskBlobStore>();
 }
-else
-{
-    builder.Services.AddScoped<ICurrentUser, CurrentUser>();
-    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddJwtBearer(options =>
-        {
-            options.Authority = builder.Configuration["Auth:Authority"];
-            options.Audience = builder.Configuration["Auth:Audience"];
-            options.TokenValidationParameters.ValidateIssuer = true;
-            options.TokenValidationParameters.ValidateAudience = true;
-        });
-}
 
-builder.Services.AddAuthorization();
+// ---- AuthN: first-party JWT bearer in every environment (ADR 0005) ----------
+builder.Services.AddSingleton<IConfigureNamedOptions<JwtBearerOptions>, JwtBearerSetup>();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+
+// ---- AuthZ: role + policy (Doc 17 §7) ---------------------------------------
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy(AuthPolicies.EmailVerified, p => p.RequireAuthenticatedUser().RequireClaim("email_verified", "true"))
+    .AddPolicy(AuthPolicies.RequireAdmin, p => p.RequireRole(Roles.Admin))
+    .AddPolicy(AuthPolicies.RequireModerator, p => p.RequireRole(Roles.Moderator, Roles.Admin))
+    .AddPolicy(AuthPolicies.RequirePremium, p => p.RequireRole(Roles.PremiumUser, Roles.Admin));
 
 // ---- ProblemDetails (RFC 9457) for all errors (Doc 05 §5) -------------------
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 // ---- OpenTelemetry traces + metrics (Doc 11 §2/§4) --------------------------
-// OTLP export is skipped when no endpoint is configured (e.g. local dev).
 var otlpEndpoint = builder.Configuration["OpenTelemetry:Endpoint"];
 var hasOtlp = !string.IsNullOrWhiteSpace(otlpEndpoint);
 
@@ -84,7 +78,7 @@ builder.Services.AddOpenTelemetry()
 builder.Services.AddOpenApi();
 builder.Services.AddCors(o => o.AddDefaultPolicy(p => p
     .WithOrigins(builder.Configuration.GetSection("Cors:Origins").Get<string[]>() ?? [])
-    .AllowAnyHeader().AllowAnyMethod()));
+    .AllowAnyHeader().AllowAnyMethod().AllowCredentials()));
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
@@ -98,16 +92,31 @@ app.UseAuthorization();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    // Scalar interactive API explorer → /scalar/v1
     app.MapScalarApiReference();
+
+    // Ensure roles exist for local development (prod seeds via the migration/one-shot task, Doc 09).
+    using var scope = app.Services.CreateScope();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
+    await IdentitySeeder.EnsureRolesAsync(roleManager);
 }
 
 app.MapHealthChecks("/health/live");
 app.MapHealthChecks("/health/ready");
 
-// Versioned endpoint groups, one per bounded context (Doc 05 §2).
-var v1 = app.MapGroup("/api/v1").RequireAuthorization();
-v1.MapResumeEndpoints();
+// Public JWKS for stateless token validation / key rotation (Doc 17 §3.2).
+app.MapGet("/.well-known/jwks.json", (RsaSigningKeyProvider keys) =>
+    Results.Content(keys.PublicJwksJson(), "application/json")).AllowAnonymous();
+
+// Versioned endpoint groups (Doc 05 §2).
+var v1 = app.MapGroup("/api/v1");
+
+// Auth group manages its own per-route authorization (mostly anonymous).
+v1.MapAuthEndpoints();
+
+// Everything else is deny-by-default.
+var secured = v1.MapGroup(string.Empty).RequireAuthorization();
+secured.MapResumeEndpoints();
+secured.MapMeEndpoints();
 
 await app.RunAsync();
 

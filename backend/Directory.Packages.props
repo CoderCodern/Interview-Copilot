@@ -22,6 +22,15 @@
     <PackageVersion Include="Pgvector.EntityFrameworkCore" Version="0.2.2" />
   </ItemGroup>
 
+  <ItemGroup Label="Identity / Auth (Doc 17)">
+    <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.0" />
+    <!-- JWT issuance from Infrastructure. The 8.x line targets net10 and matches the
+         Microsoft.IdentityModel.* versions pulled in transitively by JwtBearer 10.0.0.
+         If restore reports a version conflict, align these to the JwtBearer-resolved version. -->
+    <PackageVersion Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.14.0" />
+    <PackageVersion Include="Microsoft.IdentityModel.Tokens" Version="8.14.0" />
+  </ItemGroup>
+
   <ItemGroup Label="AI providers">
     <PackageVersion Include="OpenAI" Version="2.1.0" />
     <PackageVersion Include="Anthropic.SDK" Version="5.0.0" />

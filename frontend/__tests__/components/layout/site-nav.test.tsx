@@ -47,6 +47,14 @@ describe("SiteNav — active state (desktop nav)", () => {
     expect(link.className).not.toContain("bg-accent-soft");
   });
 
+  it("inactive nav items use text-foreground to match brand text color", () => {
+    mockUsePathname.mockReturnValue("/dashboard");
+    render(<SiteNav />);
+    const link = within(getDesktopNav()).getByRole("link", { name: /mock interview/i });
+    expect(link.className).toContain("text-foreground");
+    expect(link.className).not.toContain("text-muted-foreground");
+  });
+
   it("marks Mock Interview active when pathname is /mock", () => {
     mockUsePathname.mockReturnValue("/mock");
     render(<SiteNav />);

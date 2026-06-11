@@ -33,6 +33,10 @@ dotnet_diagnostic.CA2007.severity = none   # ConfigureAwait not needed in app co
 dotnet_diagnostic.CA1062.severity = none   # nullable handles null checks
 dotnet_diagnostic.S1118.severity = warning
 
+# EF Core scaffolded migrations — suppress all analyzer rules (generated code).
+[**/Migrations/**]
+generated_code = true
+
 [*.{json,yml,yaml}]
 indent_size = 2
 

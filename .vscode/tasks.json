@@ -1,6 +1,19 @@
 {
   "version": "2.0.0",
   "tasks": [
+    // ─── Kill any process already holding port 8080 (safe on macOS/Linux) ────
+    {
+      "label": "BE: kill port 8080",
+      "type": "shell",
+      "command": "lsof -ti :8080 | xargs kill -9 2>/dev/null; exit 0",
+      "group": "none",
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+
     // ─── Backend build (used as preLaunchTask for F5 debugging) ───────────────
     {
       "label": "BE: build",
@@ -13,6 +26,8 @@
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
+      "dependsOn": ["BE: kill port 8080"],
+      "dependsOrder": "sequence",
       "group": "build",
       "presentation": {
         "reveal": "silent",
